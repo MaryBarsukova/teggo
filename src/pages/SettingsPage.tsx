@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Trash2 } from 'lucide-react'
 import { Toggle } from '../components/Toggle'
 import { Bottomsheet } from '../components/Bottomsheet'
 import { useSettingsStore } from '../store/settingsStore'
+import { useTagStore } from '../store/tagStore'
+import { useTaskStore } from '../store/taskStore'
+import { TagIcon } from '../components/AddTaskBottomsheet'
 import { supabase } from '../lib/supabase'
 import i18n from '../lib/i18n'
 
@@ -16,12 +19,16 @@ interface User {
 export function SettingsPage() {
   const { t } = useTranslation()
   const { settings, fetchSettings, updateSettings } = useSettingsStore()
+  const { tags, fetchTags, deleteTag } = useTagStore()
+  const { tasks } = useTaskStore()
   const [user, setUser] = useState<User | null>(null)
   const [langPickerOpen, setLangPickerOpen] = useState(false)
+  const [tagsOpen, setTagsOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
 
   useEffect(() => {
     fetchSettings()
+    fetchTags()
     supabase.auth.getUser().then(({ data }) => setUser(data.user as User))
   }, [])
 
@@ -53,11 +60,16 @@ export function SettingsPage() {
     }
   }
 
+  const getTagTaskCount = (tagId: string) => {
+    return tasks.filter((task) => (task.tag_ids ?? []).includes(tagId)).length
+  }
+
   return (
     <div className="flex flex-col min-h-screen pb-24" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
-      <div className="px-4 pt-12 pb-4" style={{ backgroundColor: 'var(--color-primary)' }}>
-        <h1 className="text-[22px] text-white" style={{ fontWeight: 500 }}>{t('settings.title')}</h1>
+      <div className="px-5 pt-12 pb-5" style={{ backgroundColor: 'var(--color-primary)' }}>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginBottom: 2 }}>{t('settings.personalization')}</p>
+        <h1 style={{ fontSize: 32, color: 'white', fontWeight: 500, lineHeight: 1.1 }}>{t('settings.title')}</h1>
       </div>
 
       {/* Profile */}
@@ -74,9 +86,31 @@ export function SettingsPage() {
         </button>
       </div>
 
-      {/* Display section */}
+      {/* ОРГАНИЗАЦИЯ section */}
       <div className="mx-4 mt-4">
-        <p className="text-[11px] px-1 mb-2" style={{ color: 'var(--color-text-muted)' }}>{t('settings.display')}</p>
+        <p className="section-label px-1 mb-2">{t('settings.organization')}</p>
+        <div className="rounded-[var(--radius-md)] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
+          <button className="w-full" onClick={() => setTagsOpen(true)}>
+            <SettingsRow
+              label={t('settings.tags')}
+              sublabel={tags.length > 0 ? `${tags.length}` : undefined}
+              right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
+            />
+          </button>
+          <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
+          <button className="w-full" onClick={() => alert('Projects page')}>
+            <SettingsRow
+              label={t('settings.projects_manage')}
+              sublabel={t('settings.projects_manage_sub')}
+              right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* ЗАДАЧИ section */}
+      <div className="mx-4 mt-4">
+        <p className="section-label px-1 mb-2">{t('settings.tasks_section')}</p>
         <div className="rounded-[var(--radius-md)] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
           <SettingsRow
             label={t('settings.show_description')}
@@ -85,44 +119,39 @@ export function SettingsPage() {
           />
           <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
           <SettingsRow
-            label={t('settings.dark_mode')}
-            sublabel={t('settings.dark_mode_sub')}
-            right={<Toggle on={settings?.dark_mode === 'dark'} onChange={(v) => updateSettings({ dark_mode: v ? 'dark' : 'light' })} />}
+            label={t('settings.focus_mode')}
+            sublabel={t('settings.focus_mode_sub')}
+            right={<Toggle on={settings?.focus_mode ?? true} onChange={(v) => updateSettings({ focus_mode: v })} />}
           />
+          <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
+          <SettingsRow
+            label={t('settings.streak')}
+            sublabel={t('settings.streak_sub')}
+            right={<Toggle on={settings?.show_streak ?? true} onChange={(v) => updateSettings({ show_streak: v })} />}
+          />
+        </div>
+      </div>
+
+      {/* ПРИЛОЖЕНИЕ section */}
+      <div className="mx-4 mt-4">
+        <p className="section-label px-1 mb-2">{t('settings.app_section')}</p>
+        <div className="rounded-[var(--radius-md)] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
+          <button className="w-full" onClick={() => alert('Notifications coming soon')}>
+            <SettingsRow
+              label={t('settings.notifications_nav')}
+              right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
+            />
+          </button>
           <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
           <button className="w-full" onClick={() => setLangPickerOpen(true)}>
             <SettingsRow
-              label={t('settings.language')}
+              label={t('settings.theme')}
               sublabel={languageLabel()}
               right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
             />
           </button>
-        </div>
-      </div>
-
-      {/* Notifications */}
-      <div className="mx-4 mt-4">
-        <p className="text-[11px] px-1 mb-2" style={{ color: 'var(--color-text-muted)' }}>{t('settings.notifications_section')}</p>
-        <div className="rounded-[var(--radius-md)] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
-          <SettingsRow
-            label={t('settings.push')}
-            sublabel={t('settings.push_sub')}
-            right={<Toggle on={settings?.notifications ?? false} onChange={(v) => updateSettings({ notifications: v })} />}
-          />
           <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
-          <SettingsRow
-            label={t('settings.morning_digest')}
-            sublabel={settings?.morning_time ?? '08:00'}
-            right={<Toggle on={settings?.morning_digest ?? false} onChange={(v) => updateSettings({ morning_digest: v })} />}
-          />
-        </div>
-      </div>
-
-      {/* Data */}
-      <div className="mx-4 mt-4">
-        <p className="text-[11px] px-1 mb-2" style={{ color: 'var(--color-text-muted)' }}>{t('settings.data')}</p>
-        <div className="rounded-[var(--radius-md)] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
-          <button className="w-full" onClick={() => alert('Coming soon')}>
+          <button className="w-full" onClick={() => alert('Export coming soon')}>
             <SettingsRow label={t('settings.export')} right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />} />
           </button>
           <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
@@ -134,7 +163,54 @@ export function SettingsPage() {
         </div>
       </div>
 
-      {/* Language picker */}
+      {/* Tags bottomsheet */}
+      <Bottomsheet open={tagsOpen} onClose={() => setTagsOpen(false)} fullHeight>
+        <div className="px-4 pb-6">
+          <p style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text)', padding: '12px 0 16px' }}>
+            {t('settings.tags')}
+          </p>
+          {tags.length === 0 ? (
+            <p style={{ fontSize: 14, color: 'var(--color-text-muted)', textAlign: 'center', paddingTop: 32 }}>
+              Тегов пока нет
+            </p>
+          ) : (
+            <div className="flex flex-col">
+              {tags.map((tag) => {
+                const count = getTagTaskCount(tag.id)
+                return (
+                  <div
+                    key={tag.id}
+                    className="flex items-center gap-3 py-3"
+                    style={{ borderBottom: '0.5px solid var(--color-border)' }}
+                  >
+                    {/* Colored icon square */}
+                    <div
+                      className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: `${tag.color}20` }}
+                    >
+                      <TagIcon icon={tag.icon ?? 'tag'} size={17} color={tag.color} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p style={{ fontSize: 15, color: 'var(--color-text)', fontWeight: 500 }}>{tag.name}</p>
+                      {count > 0 && (
+                        <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{count} задач</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => deleteTag(tag.id)}
+                      className="p-2 active:opacity-50"
+                    >
+                      <Trash2 size={16} style={{ color: 'var(--color-text-muted)' }} />
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </Bottomsheet>
+
+      {/* Language / theme picker */}
       <Bottomsheet open={langPickerOpen} onClose={() => setLangPickerOpen(false)}>
         <div className="px-4 pb-6">
           <p className="text-[16px] py-3 mb-2" style={{ fontWeight: 500, color: 'var(--color-text)' }}>{t('settings.language')}</p>
@@ -152,6 +228,12 @@ export function SettingsPage() {
               {label}
             </button>
           ))}
+          <p className="text-[16px] py-3 mt-4 mb-2" style={{ fontWeight: 500, color: 'var(--color-text)' }}>{t('settings.dark_mode')}</p>
+          <SettingsRow
+            label={t('settings.dark_mode')}
+            sublabel={t('settings.dark_mode_sub')}
+            right={<Toggle on={settings?.dark_mode === 'dark'} onChange={(v) => updateSettings({ dark_mode: v ? 'dark' : 'light' })} />}
+          />
         </div>
       </Bottomsheet>
 

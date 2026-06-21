@@ -63,7 +63,7 @@ export function ProjectDetailPage() {
           </button>
         </div>
 
-        <h1 className="text-[24px] text-white mb-3" style={{ fontWeight: 500 }}>{project.name}</h1>
+        <h1 style={{ fontSize: 28, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 10 }}>{project.name}</h1>
 
         {project.description && (
           <p className="text-[13px] mb-3" style={{ color: 'rgba(255,255,255,0.75)' }}>{project.description}</p>
@@ -85,39 +85,47 @@ export function ProjectDetailPage() {
       </div>
 
       {/* Task sections */}
-      <div className="flex-1 pb-24">
-        {/* In progress */}
-        {inProgress.length > 0 && (
-          <>
-            <div className="px-4 py-2 mt-2">
-              <p className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>{t('projects.in_progress')}</p>
-            </div>
-            {inProgress.map((task) => (
-              <React.Fragment key={task.id}>
-                <TaskCard task={task} />
-                <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />
-              </React.Fragment>
-            ))}
-          </>
-        )}
-
-        {/* Done */}
-        {done.length > 0 && (
-          <>
-            <div className="px-4 py-2 mt-2">
-              <p className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>{t('projects.done_section')}</p>
-            </div>
-            {done.map((task) => (
-              <React.Fragment key={task.id}>
-                <TaskCard task={task} />
-                <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />
-              </React.Fragment>
-            ))}
-          </>
-        )}
-
-        {projectTasks.length === 0 && (
+      <div className="flex-1 pb-24 pt-4">
+        {projectTasks.length === 0 ? (
           <EmptyState icon={<ListTodo size={40} />} text={t('tasks.empty_progress')} />
+        ) : (
+          <>
+            {/* In progress */}
+            {inProgress.length > 0 && (
+              <>
+                <p className="section-label px-5 pb-2">{t('projects.in_progress')}</p>
+                <div
+                  className="mx-4 rounded-[16px] overflow-hidden"
+                  style={{ backgroundColor: 'var(--color-surface)', boxShadow: '0 1px 4px rgba(28,16,7,0.07)' }}
+                >
+                  {inProgress.map((task, i) => (
+                    <React.Fragment key={task.id}>
+                      {i > 0 && <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />}
+                      <TaskCard task={task} />
+                    </React.Fragment>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Done */}
+            {done.length > 0 && (
+              <>
+                <p className="section-label px-5 pt-5 pb-2">{t('projects.done_section')}</p>
+                <div
+                  className="mx-4 rounded-[16px] overflow-hidden"
+                  style={{ backgroundColor: 'var(--color-surface)', boxShadow: '0 1px 4px rgba(28,16,7,0.07)' }}
+                >
+                  {done.map((task, i) => (
+                    <React.Fragment key={task.id}>
+                      {i > 0 && <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />}
+                      <TaskCard task={task} />
+                    </React.Fragment>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         )}
       </div>
 

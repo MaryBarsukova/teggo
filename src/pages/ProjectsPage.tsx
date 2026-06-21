@@ -50,9 +50,9 @@ export function ProjectsPage() {
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
-      <div className="px-4 pt-12 pb-4" style={{ backgroundColor: 'var(--color-primary)' }}>
-        <h1 className="text-[22px] text-white mb-0.5" style={{ fontWeight: 500 }}>{t('projects.title')}</h1>
-        <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+      <div className="px-5 pt-12 pb-5" style={{ backgroundColor: 'var(--color-primary)' }}>
+        <h1 style={{ fontSize: 32, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>{t('projects.title')}</h1>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
           {t('projects.active', { count: activeProjects.length })}
         </p>
       </div>

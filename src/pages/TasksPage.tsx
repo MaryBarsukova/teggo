@@ -33,6 +33,27 @@ function groupByDoneAt(tasks: Task[]): { label: string; tasks: Task[] }[] {
     })
 }
 
+function TaskGroup({ tasks }: { tasks: Task[] }) {
+  return (
+    <div
+      className="mx-4 rounded-[16px] overflow-hidden"
+      style={{
+        backgroundColor: 'var(--color-surface)',
+        boxShadow: '0 1px 4px rgba(28,16,7,0.07)',
+      }}
+    >
+      {tasks.map((task, i) => (
+        <React.Fragment key={task.id}>
+          {i > 0 && (
+            <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />
+          )}
+          <TaskCard task={task} />
+        </React.Fragment>
+      ))}
+    </div>
+  )
+}
+
 export function TasksPage() {
   const { t } = useTranslation()
   const { tasks, fetchTasks, searchQuery, setSearchQuery, activeTagId, setActiveTagId } = useTaskStore()
@@ -46,7 +67,7 @@ export function TasksPage() {
 
   const filtered = tasks.filter((task) => {
     const matchesSearch = searchQuery === '' || task.title.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesTag = activeTagId === null || task.tag_id === activeTagId
+    const matchesTag = activeTagId === null || (task.tag_ids ?? []).includes(activeTagId)
     return matchesSearch && matchesTag
   })
 
@@ -68,108 +89,127 @@ export function TasksPage() {
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
-      <div className="px-4 pt-12 pb-0" style={{ backgroundColor: 'var(--color-primary)' }}>
-        <h1 className="text-[22px] text-white mb-0.5" style={{ fontWeight: 500 }}>{t('tasks.title')}</h1>
-        <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.7)' }}>
-          {count} {activeTab === 'progress' ? t('tasks.in_progress').toLowerCase() : t('tasks.done').toLowerCase()}
-        </p>
-        <div className="flex gap-6">
-          {(['progress', 'done'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className="pb-3 text-[14px] text-white transition-all"
-              style={{
-                borderBottom: activeTab === tab ? '2px solid white' : '2px solid transparent',
-                fontWeight: activeTab === tab ? 500 : 400,
-                opacity: activeTab === tab ? 1 : 0.7,
-              }}
-            >
-              {tab === 'progress' ? t('tasks.in_progress') : t('tasks.done')}
-            </button>
-          ))}
+      <div style={{ backgroundColor: 'var(--color-primary)' }}>
+        <div className="px-5 pt-12 pb-0">
+          <h1 style={{ fontSize: 32, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>
+            {t('tasks.title')}
+          </h1>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginBottom: 14 }}>
+            {count} {activeTab === 'progress' ? t('tasks.in_progress').toLowerCase() : t('tasks.done').toLowerCase()}
+          </p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex px-5 gap-6">
+          <button
+            onClick={() => setActiveTab('progress')}
+            className="pb-3"
+            style={{
+              fontSize: 15,
+              color: 'white',
+              fontWeight: activeTab === 'progress' ? 500 : 400,
+              opacity: activeTab === 'progress' ? 1 : 0.6,
+              borderBottom: activeTab === 'progress' ? '2px solid white' : '2px solid transparent',
+            }}
+          >
+            {t('tasks.active_tab')}
+          </button>
+          <button
+            onClick={() => setActiveTab('done')}
+            className="pb-3"
+            style={{
+              fontSize: 15,
+              color: 'white',
+              fontWeight: activeTab === 'done' ? 500 : 400,
+              opacity: activeTab === 'done' ? 1 : 0.6,
+              borderBottom: activeTab === 'done' ? '2px solid white' : '2px solid transparent',
+            }}
+          >
+            {t('tasks.done_tab')}
+          </button>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="px-4 py-3" style={{ backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
-        <div className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius-md)]" style={{ backgroundColor: 'var(--color-bg)' }}>
-          <Search size={16} style={{ color: 'var(--color-text-muted)' }} />
+      {/* Search + tag filter */}
+      <div style={{ backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
+        <div className="flex items-center gap-2.5 px-4 py-3">
+          <Search size={15} style={{ color: 'var(--color-inactive)', flexShrink: 0 }} />
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('tasks.search')}
-            className="flex-1 text-[14px] outline-none bg-transparent"
-            style={{ color: 'var(--color-text)' }}
+            className="flex-1 outline-none bg-transparent"
+            style={{ fontSize: 15, color: 'var(--color-text)' }}
           />
         </div>
-      </div>
-
-      {/* Tag filter */}
-      <div
-        className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide"
-        style={{ backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}
-      >
-        <button
-          onClick={() => setActiveTagId(null)}
-          className="px-3 py-1 rounded-full text-[12px] flex-shrink-0"
-          style={{
-            backgroundColor: activeTagId === null ? 'var(--color-primary)' : 'var(--color-bg)',
-            color: activeTagId === null ? 'white' : 'var(--color-text)',
-            border: '0.5px solid var(--color-border)',
-          }}
-        >
-          {t('tasks.all')}
-        </button>
-        {tags.map((tag) => (
-          <button
-            key={tag.id}
-            onClick={() => setActiveTagId(activeTagId === tag.id ? null : tag.id)}
-            className="px-3 py-1 rounded-full text-[12px] flex-shrink-0"
-            style={{
-              backgroundColor: activeTagId === tag.id ? 'var(--color-primary)' : 'var(--color-bg)',
-              color: activeTagId === tag.id ? 'white' : 'var(--color-text)',
-              border: '0.5px solid var(--color-border)',
-            }}
-          >
-            {tag.name}
-          </button>
-        ))}
+        {tags.length > 0 && (
+          <>
+            <p className="section-label px-4 pb-1.5">{t('tasks.filter_by_tag')}</p>
+            <div
+              className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide"
+            >
+              <button
+                onClick={() => setActiveTagId(null)}
+                className="px-3 py-1.5 rounded-full flex-shrink-0"
+                style={{
+                  fontSize: 13,
+                  backgroundColor: activeTagId === null ? 'var(--color-primary)' : 'var(--color-bg)',
+                  color: activeTagId === null ? 'white' : 'var(--color-text-secondary)',
+                  border: `1px solid ${activeTagId === null ? 'var(--color-primary)' : 'var(--color-border-strong)'}`,
+                  fontWeight: activeTagId === null ? 500 : 400,
+                }}
+              >
+                {t('tasks.all')}
+              </button>
+              {tags.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => setActiveTagId(activeTagId === tag.id ? null : tag.id)}
+                  className="px-3 py-1.5 rounded-full flex-shrink-0"
+                  style={{
+                    fontSize: 13,
+                    backgroundColor: activeTagId === tag.id ? `${tag.color}22` : 'var(--color-bg)',
+                    color: activeTagId === tag.id ? tag.color : 'var(--color-text-secondary)',
+                    border: `1px solid ${activeTagId === tag.id ? tag.color : 'var(--color-border-strong)'}`,
+                    fontWeight: activeTagId === tag.id ? 500 : 400,
+                  }}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Task list */}
-      <div className="flex-1 pb-24">
+      <div className="flex-1 pb-24 pt-4">
         {activeTab === 'progress' ? (
           inProgress.length === 0 ? (
             <EmptyState icon={<ListTodo size={40} />} text={t('tasks.empty_progress')} />
           ) : (
-            inProgress.map((task) => (
-              <React.Fragment key={task.id}>
-                <TaskCard task={task} />
-                <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />
-              </React.Fragment>
-            ))
+            <TaskGroup tasks={inProgress} />
           )
         ) : (
           done.length === 0 ? (
             <EmptyState icon={<ListTodo size={40} />} text={t('tasks.empty_done')} />
           ) : (
-            doneGroups.map(({ label, tasks: groupTasks }) => (
-              <div key={label}>
-                <div className="flex items-center gap-2 px-4 py-2">
-                  <p className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>{label}</p>
-                  <div className="px-2 py-0.5 rounded-full text-[11px] text-white" style={{ backgroundColor: 'var(--color-primary)' }}>
-                    {groupTasks.length}
+            <div className="flex flex-col gap-5">
+              {doneGroups.map(({ label, tasks: groupTasks }) => (
+                <div key={label}>
+                  <div className="flex items-center gap-2 px-5 pb-2">
+                    <p className="section-label">{label}</p>
+                    <span
+                      className="px-2 py-0.5 rounded-full text-white"
+                      style={{ fontSize: 11, backgroundColor: 'var(--color-primary)' }}
+                    >
+                      {groupTasks.length}
+                    </span>
                   </div>
+                  <TaskGroup tasks={groupTasks} />
                 </div>
-                {groupTasks.map((task) => (
-                  <React.Fragment key={task.id}>
-                    <TaskCard task={task} />
-                    <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />
-                  </React.Fragment>
-                ))}
-              </div>
-            ))
+              ))}
+            </div>
           )
         )}
       </div>

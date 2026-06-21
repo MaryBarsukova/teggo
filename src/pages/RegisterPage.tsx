@@ -13,7 +13,17 @@ async function createDefaultSettings(userId: string) {
     notifications: true,
     morning_digest: true,
     morning_time: '08:00',
+    focus_mode: true,
+    show_streak: true,
   })
+}
+
+function FieldError({ message }: { message: string }) {
+  return (
+    <p className="flex items-center gap-1 mt-1" style={{ fontSize: 12, color: 'var(--color-overdue)' }}>
+      <span>×</span> {message}
+    </p>
+  )
 }
 
 export function RegisterPage() {
@@ -21,13 +31,22 @@ export function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [agreed, setAgreed] = useState(false)
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
   const [loading, setLoading] = useState(false)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
+  const validate = () => {
+    const e: typeof errors = {}
+    if (password.length > 0 && password.length < 8) e.password = 'Минимум 8 символов'
+    return e
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
+    const errs = validate()
+    if (Object.keys(errs).length > 0) { setErrors(errs); return }
+    setErrors({})
     setLoading(true)
     const { data, error: err } = await supabase.auth.signUp({
       email,
@@ -36,99 +55,145 @@ export function RegisterPage() {
     })
     if (err) {
       if (err.message.toLowerCase().includes('rate limit')) {
-        setError('Email sending is rate-limited by Supabase. Please go to Supabase Dashboard → Authentication → Providers → Email and turn OFF "Confirm email", then try again.')
+        setErrors({ general: 'Слишком много попыток. Подожди немного.' })
+      } else if (err.message.toLowerCase().includes('already registered') || err.message.toLowerCase().includes('already been registered')) {
+        setErrors({ email: 'Этот email уже зарегистрирован' })
       } else {
-        setError(err.message)
+        setErrors({ general: err.message })
       }
     } else if (data.user) {
       await createDefaultSettings(data.user.id)
       identifyUser(data.user.id, { email: data.user.email, name })
       track('user_signed_up')
-      // If email confirmation required, session will be null
-      if (!data.session) {
-        setNeedsConfirmation(true)
-      }
+      if (!data.session) setNeedsConfirmation(true)
     }
     setLoading(false)
   }
 
   if (needsConfirmation) {
     return (
-      <div className="min-h-screen flex flex-col justify-center px-6 py-12" style={{ backgroundColor: 'var(--color-bg)' }}>
-        <div className="mb-6 text-center">
-          <div className="text-5xl mb-4">✉️</div>
-          <h2 className="text-[22px] mb-2" style={{ fontWeight: 500, color: 'var(--color-text)' }}>Check your email</h2>
-          <p className="text-[14px]" style={{ color: 'var(--color-text-muted)' }}>
-            We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account, then sign in.
-          </p>
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-bg)' }}>
+        <div className="px-6 pt-16 pb-10 flex flex-col items-center" style={{ backgroundColor: 'var(--color-primary)' }}>
+          <div className="w-14 h-14 rounded-[16px] flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+            <span style={{ fontSize: 28, color: 'white', fontWeight: 700 }}>T</span>
+          </div>
+          <h1 style={{ fontSize: 28, color: 'white', fontWeight: 600 }}>Teggo</h1>
         </div>
-        <Link to="/login" className="block text-center py-3.5 rounded-full text-[14px] text-white" style={{ backgroundColor: 'var(--color-primary)', fontWeight: 500 }}>
-          Go to sign in
-        </Link>
+        <div className="flex flex-col items-center px-6 pt-12 text-center">
+          <div style={{ fontSize: 48, marginBottom: 16 }}>✉️</div>
+          <h2 style={{ fontSize: 22, fontWeight: 500, color: 'var(--color-text)', marginBottom: 8 }}>Проверь почту</h2>
+          <p style={{ fontSize: 14, color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+            Мы отправили ссылку на <strong>{email}</strong>. Нажми на неё и затем войди в приложение.
+          </p>
+          <Link
+            to="/login"
+            className="mt-8 block w-full py-3.5 rounded-full text-center text-white"
+            style={{ backgroundColor: 'var(--color-primary)', fontWeight: 500, fontSize: 15 }}
+          >
+            Войти
+          </Link>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center px-6 py-12" style={{ backgroundColor: 'var(--color-bg)' }}>
-      <div className="mb-10">
-        <h1 className="text-[28px]" style={{ fontWeight: 500, color: 'var(--color-text)' }}>Teggo</h1>
-        <p className="text-[14px] mt-1" style={{ color: 'var(--color-text-muted)' }}>Personal task planner</p>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-bg)' }}>
+      {/* Header */}
+      <div className="px-6 pt-16 pb-8 flex flex-col items-center" style={{ backgroundColor: 'var(--color-primary)' }}>
+        <div className="w-14 h-14 rounded-[16px] flex items-center justify-center mb-3" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+          <span style={{ fontSize: 28, color: 'white', fontWeight: 700 }}>T</span>
+        </div>
+        <h1 style={{ fontSize: 28, color: 'white', fontWeight: 600 }}>Teggo</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <label className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>{t('auth.name')}</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="w-full px-4 py-3 text-[14px] rounded-[var(--radius-md)] outline-none"
-            style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)', color: 'var(--color-text)' }}
-            placeholder="Maria"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>{t('auth.email')}</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-4 py-3 text-[14px] rounded-[var(--radius-md)] outline-none"
-            style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)', color: 'var(--color-text)' }}
-            placeholder="you@example.com"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>{t('auth.password')}</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full px-4 py-3 text-[14px] rounded-[var(--radius-md)] outline-none"
-            style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)', color: 'var(--color-text)' }}
-            placeholder="••••••••"
-          />
-        </div>
+      {/* Form */}
+      <div className="flex-1 px-6 pt-8">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          {/* Name */}
+          <div>
+            <label className="section-label block mb-1.5">{t('auth.name')}</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-[12px] outline-none"
+              style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)', color: 'var(--color-text)', fontSize: 15 }}
+              placeholder="Мария"
+            />
+          </div>
 
-        {error && <p className="text-[12px]" style={{ color: 'var(--color-overdue)' }}>{error}</p>}
+          {/* Email */}
+          <div>
+            <label className="section-label block mb-1.5">{t('auth.email')}</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: undefined })) }}
+              required
+              className="w-full px-4 py-3 rounded-[12px] outline-none"
+              style={{
+                backgroundColor: 'var(--color-surface)',
+                border: `0.5px solid ${errors.email ? 'var(--color-overdue)' : 'var(--color-border)'}`,
+                color: 'var(--color-text)',
+                fontSize: 15,
+              }}
+              placeholder="you@example.com"
+            />
+            {errors.email && <FieldError message={errors.email} />}
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3.5 rounded-full text-[14px] text-white mt-2 active:opacity-70 disabled:opacity-40"
-          style={{ backgroundColor: 'var(--color-primary)', fontWeight: 500 }}
-        >
-          {loading ? '...' : t('auth.sign_up')}
-        </button>
-      </form>
+          {/* Password */}
+          <div>
+            <label className="section-label block mb-1.5">{t('auth.password')}</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: undefined })) }}
+              required
+              className="w-full px-4 py-3 rounded-[12px] outline-none"
+              style={{
+                backgroundColor: 'var(--color-surface)',
+                border: `0.5px solid ${errors.password ? 'var(--color-overdue)' : 'var(--color-border)'}`,
+                color: 'var(--color-text)',
+                fontSize: 15,
+              }}
+              placeholder="••••••••"
+            />
+            {errors.password && <FieldError message={errors.password} />}
+          </div>
 
-      <Link to="/login" className="mt-6 text-center text-[13px]" style={{ color: 'var(--color-primary)' }}>
-        {t('auth.has_account')}
-      </Link>
+          {/* Terms */}
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="mt-0.5 flex-shrink-0"
+              style={{ width: 16, height: 16, accentColor: 'var(--color-primary)' }}
+            />
+            <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
+              {t('auth.terms')}
+            </span>
+          </label>
+
+          {errors.general && <FieldError message={errors.general} />}
+
+          <button
+            type="submit"
+            disabled={loading || !agreed}
+            className="w-full py-3.5 rounded-full text-white active:opacity-70 disabled:opacity-40 mt-1"
+            style={{ backgroundColor: 'var(--color-primary)', fontWeight: 500, fontSize: 15 }}
+          >
+            {loading ? '...' : t('auth.sign_up')}
+          </button>
+        </form>
+
+        <Link to="/login" className="block mt-5 text-center" style={{ fontSize: 13, color: 'var(--color-primary)' }}>
+          {t('auth.has_account')}
+        </Link>
+      </div>
     </div>
   )
 }

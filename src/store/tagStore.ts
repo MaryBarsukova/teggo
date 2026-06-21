@@ -6,7 +6,8 @@ interface TagStore {
   tags: Tag[]
   loading: boolean
   fetchTags: () => Promise<void>
-  addTag: (name: string) => Promise<Tag | null>
+  addTag: (name: string, color: string, icon: string) => Promise<Tag | null>
+  updateTag: (id: string, updates: Partial<Pick<Tag, 'name' | 'color' | 'icon'>>) => Promise<void>
   deleteTag: (id: string) => Promise<void>
 }
 
@@ -21,12 +22,12 @@ export const useTagStore = create<TagStore>((set) => ({
     set({ loading: false })
   },
 
-  addTag: async (name) => {
+  addTag: async (name, color, icon) => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null
     const { data } = await supabase
       .from('tags')
-      .insert({ name, user_id: user.id })
+      .insert({ name, color, icon, user_id: user.id })
       .select()
       .single()
     if (data) {
@@ -34,6 +35,11 @@ export const useTagStore = create<TagStore>((set) => ({
       return data as Tag
     }
     return null
+  },
+
+  updateTag: async (id, updates) => {
+    const { data } = await supabase.from('tags').update(updates).eq('id', id).select().single()
+    if (data) set((s) => ({ tags: s.tags.map((t) => (t.id === id ? (data as Tag) : t)) }))
   },
 
   deleteTag: async (id) => {

@@ -57,9 +57,9 @@ export function CalendarPage() {
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
-      <div className="px-4 pt-12 pb-4" style={{ backgroundColor: 'var(--color-primary)' }}>
-        <h1 className="text-[22px] text-white capitalize" style={{ fontWeight: 500 }}>{t('calendar.title')}</h1>
-        <p className="text-[12px] capitalize" style={{ color: 'rgba(255,255,255,0.7)' }}>{monthName}</p>
+      <div className="px-5 pt-12 pb-4" style={{ backgroundColor: 'var(--color-primary)' }}>
+        <h1 style={{ fontSize: 32, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>{t('calendar.title')}</h1>
+        <p className="capitalize" style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>{monthName}</p>
       </div>
 
       {/* Calendar grid */}
@@ -122,20 +122,25 @@ export function CalendarPage() {
       </div>
 
       {/* Selected day tasks */}
-      <div className="flex-1 pb-24">
-        <div className="px-4 py-3">
-          <p className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>
-            {selectedTasks.length === 0
-              ? t('calendar.empty_day', { date: selectedDateLabel })
-              : t('calendar.tasks_count', { date: selectedDateLabel, count: selectedTasks.length })}
-          </p>
-        </div>
-        {selectedTasks.map((task: Task) => (
-          <React.Fragment key={task.id}>
-            <TaskCard task={task} />
-            <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />
-          </React.Fragment>
-        ))}
+      <div className="flex-1 pb-24 pt-4">
+        {selectedTasks.length === 0 ? (
+          <p className="px-5 py-2 section-label">{t('calendar.empty_day', { date: selectedDateLabel })}</p>
+        ) : (
+          <>
+            <p className="section-label px-5 pb-2">{t('calendar.tasks_count', { date: selectedDateLabel, count: selectedTasks.length })}</p>
+            <div
+              className="mx-4 rounded-[16px] overflow-hidden"
+              style={{ backgroundColor: 'var(--color-surface)', boxShadow: '0 1px 4px rgba(28,16,7,0.07)' }}
+            >
+              {selectedTasks.map((task: Task, i: number) => (
+                <React.Fragment key={task.id}>
+                  {i > 0 && <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />}
+                  <TaskCard task={task} />
+                </React.Fragment>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       <FAB onPress={handleFABPress} />
