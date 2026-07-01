@@ -38,7 +38,7 @@ export const useUIStore = create<UIStore>((set) => ({
   selectedCalendarDate: todayStr(),
   activeFilters: [],
 
-  openAddTask: (task = null, defaults = null) => set({ isAddTaskOpen: true, editingTask: task, newTaskDefaults: defaults }),
+  openAddTask: (task = null, defaults = undefined) => set({ isAddTaskOpen: true, editingTask: task, newTaskDefaults: defaults ?? null }),
   closeAddTask: () => set({ isAddTaskOpen: false, editingTask: null, newTaskDefaults: null }),
   openAddProject: (projectId = null) => set({ isAddProjectOpen: true, editingProjectId: projectId }),
   closeAddProject: () => set({ isAddProjectOpen: false, editingProjectId: null }),

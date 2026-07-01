@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { supabase } from './lib/supabase'
 import { TabBar } from './components/TabBar'
 import { AddTaskBottomsheet } from './components/AddTaskBottomsheet'
+import { SplashScreen } from './components/SplashScreen'
 import { TodayPage } from './pages/TodayPage'
 import { TasksPage } from './pages/TasksPage'
 import { ProjectsPage } from './pages/ProjectsPage'
@@ -38,9 +39,15 @@ function AppLayout() {
 export default function App() {
   const navigate = useNavigate()
   const [session, setSession] = useState<boolean | null>(null)
+  const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splashShown'))
   const { fetchSettings, settings } = useSettingsStore()
   const { fetchProjects } = useProjectStore()
   const { fetchTags } = useTagStore()
+
+  const handleSplashDone = () => {
+    sessionStorage.setItem('splashShown', '1')
+    setShowSplash(false)
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -75,6 +82,10 @@ export default function App() {
     else if (settings.dark_mode === 'light') root.setAttribute('data-theme', 'light')
     else root.removeAttribute('data-theme')
   }, [settings?.dark_mode])
+
+  if (showSplash) {
+    return <SplashScreen onDone={handleSplashDone} />
+  }
 
   if (session === null) {
     return (

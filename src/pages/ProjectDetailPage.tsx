@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, MoreHorizontal } from 'lucide-react'
@@ -20,8 +20,6 @@ export function ProjectDetailPage() {
   const { openAddTask, openAddProject } = useUIStore()
   const [menuOpen, setMenuOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
   useEffect(() => { fetchTasks() }, [])
 
   const project = projects.find((p) => p.id === id)
