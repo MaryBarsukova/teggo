@@ -114,7 +114,7 @@ export function SettingsPage() {
       </div>
 
       {/* ОРГАНИЗАЦИЯ section */}
-      <div style={{ marginTop: 24 }}>
+      <div style={{ marginTop: 8 }}>
         <span style={SECTION_LABEL_STYLE}>{t('settings.organization')}</span>
         <button className="w-full" onClick={() => setTagsOpen(true)}>
           <SettingsRow
@@ -175,7 +175,7 @@ export function SettingsPage() {
           <SettingsRow label={t('settings.export')} right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />} />
         </button>
         <button className="w-full" onClick={() => setConfirmDeleteOpen(true)}>
-          <div style={{ padding: '14px 16px', backgroundColor: 'white', borderBottom: '0.5px solid rgba(45,27,20,0.08)' }}>
+          <div style={{ padding: '14px 16px', backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
             <p style={{ fontSize: 14, color: 'var(--color-overdue)' }}>{t('settings.delete_account')}</p>
           </div>
         </button>
@@ -362,9 +362,9 @@ function SettingsRow({ label, sublabel, right, isFirst }: SettingsRowProps) {
       className="flex items-center justify-between"
       style={{
         padding: '14px 16px',
-        backgroundColor: 'white',
-        borderTop: isFirst ? '0.5px solid rgba(45,27,20,0.08)' : 'none',
-        borderBottom: '0.5px solid rgba(45,27,20,0.08)',
+        backgroundColor: 'var(--color-surface)',
+        borderTop: isFirst ? '0.5px solid var(--color-border)' : 'none',
+        borderBottom: '0.5px solid var(--color-border)',
       }}
     >
       <div>

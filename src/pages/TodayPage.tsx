@@ -46,7 +46,7 @@ function StreakSquares({ heatmapData }: { heatmapData: Record<string, number> })
 function TaskGroup({ tasks, checkboxColor }: { tasks: Task[]; checkboxColor?: 'peach' | 'gray' }) {
   if (tasks.length === 0) return null
   return (
-    <div className="mx-4 rounded-[16px] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', boxShadow: '0 1px 4px rgba(28,16,7,0.07)' }}>
+    <div className="mx-4 rounded-[16px] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
       {tasks.map((task, i) => (
         <React.Fragment key={task.id}>
           {i > 0 && <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />}
@@ -99,8 +99,8 @@ export function TodayPage() {
           </div>
         )}
         {/* Focus mode toggle */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flexShrink: 1 }}>
             <Zap size={13} style={{ color: 'rgba(255,255,255,0.85)' }} />
             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.85)', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               Фокус дня
