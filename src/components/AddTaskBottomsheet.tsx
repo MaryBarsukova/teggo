@@ -258,53 +258,41 @@ export function AddTaskBottomsheet() {
                   </div>
 
                   {addingTag && (
-                    <div className="mt-3">
+                    <div className="mt-2">
                       <div className="flex items-center gap-2 mb-2">
+                        <div
+                          className="w-5 h-5 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: newTagColor }}
+                        />
                         <input
                           autoFocus
                           value={newTagName}
                           onChange={(e) => setNewTagName(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && handleCreateTag()}
-                          placeholder="Название"
+                          placeholder="Название тега"
                           className="flex-1 outline-none bg-transparent"
                           style={{ fontSize: 14, color: 'var(--color-text)', borderBottom: '1px solid var(--color-border-strong)', paddingBottom: 4 }}
                           maxLength={12}
                         />
-                        <button onClick={handleCreateTag} style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 500 }}>OK</button>
-                        <button onClick={() => setAddingTag(false)}>
+                        <button onClick={handleCreateTag} className="active:opacity-50">
+                          <Check size={16} style={{ color: 'var(--color-primary)' }} />
+                        </button>
+                        <button onClick={() => setAddingTag(false)} className="active:opacity-50">
                           <X size={14} style={{ color: 'var(--color-text-muted)' }} />
                         </button>
                       </div>
-                      {/* Color picker */}
-                      <div className="flex gap-2 mb-2">
-                        {TAG_COLORS.map((c) => (
+                      <div className="flex gap-2">
+                        {['#F0956E', '#7A9E6C', '#378ADD', '#A96CC4', '#E2A030', '#D4537E'].map((c) => (
                           <button
                             key={c}
                             onClick={() => setNewTagColor(c)}
                             className="w-6 h-6 rounded-full flex-shrink-0"
                             style={{
                               backgroundColor: c,
-                              border: newTagColor === c ? '2px solid var(--color-text)' : '2px solid transparent',
-                              outline: newTagColor === c ? '1px solid white' : 'none',
-                              outlineOffset: '-3px',
+                              outline: newTagColor === c ? `2px solid ${c}` : 'none',
+                              outlineOffset: 2,
                             }}
                           />
-                        ))}
-                      </div>
-                      {/* Icon picker */}
-                      <div className="flex gap-2">
-                        {TAG_ICONS.map((icon) => (
-                          <button
-                            key={icon}
-                            onClick={() => setNewTagIcon(icon)}
-                            className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                            style={{
-                              backgroundColor: newTagIcon === icon ? `${newTagColor}30` : 'var(--color-bg)',
-                              border: newTagIcon === icon ? `1.5px solid ${newTagColor}` : '1px solid var(--color-border)',
-                            }}
-                          >
-                            <TagIcon icon={icon} size={15} color={newTagIcon === icon ? newTagColor : 'var(--color-text-muted)'} />
-                          </button>
                         ))}
                       </div>
                     </div>
@@ -367,9 +355,15 @@ export function AddTaskBottomsheet() {
           <div className="px-5 pt-3 pb-2">
             <button
               onClick={handleSave}
-              disabled={!title.trim()}
-              className="w-full py-3.5 rounded-[14px] active:opacity-70 disabled:opacity-30 mb-2"
-              style={{ fontSize: 15, backgroundColor: '#F0956E', color: 'white', fontWeight: 500 }}
+              className="w-full py-3.5 rounded-[14px] mb-2"
+              style={{
+                fontSize: 15,
+                backgroundColor: '#F0956E',
+                color: '#FFFFFF',
+                fontWeight: 500,
+                opacity: title.trim() ? 1 : 0.5,
+                pointerEvents: title.trim() ? 'auto' : 'none',
+              }}
             >
               {t('common.save')}
             </button>

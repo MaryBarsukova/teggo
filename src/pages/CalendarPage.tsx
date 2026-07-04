@@ -32,7 +32,8 @@ export function CalendarPage() {
   const month = viewDate.getMonth()
   const days = getDaysInMonth(year, month)
 
-  const monthName = viewDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+  const rawMonth = viewDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
+  const monthName = (rawMonth.charAt(0).toUpperCase() + rawMonth.slice(1)).replace(/\s*г\.$/i, '').trim()
 
   const prevMonth = () => setViewDate(new Date(year, month - 1, 1))
   const nextMonth = () => setViewDate(new Date(year, month + 1, 1))

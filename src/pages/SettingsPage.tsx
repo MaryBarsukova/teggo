@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronRight, Trash2 } from 'lucide-react'
+import { ChevronRight, Trash2, Plus } from 'lucide-react'
 import { Toggle } from '../components/Toggle'
 import { Bottomsheet } from '../components/Bottomsheet'
 import { useSettingsStore } from '../store/settingsStore'
@@ -16,15 +16,32 @@ interface User {
   user_metadata?: { display_name?: string }
 }
 
+const SECTION_LABEL_STYLE: React.CSSProperties = {
+  fontSize: 11,
+  color: '#AAAAAA',
+  fontWeight: 500,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  padding: '0 16px',
+  marginBottom: 8,
+  display: 'block',
+}
+
+const CREATE_TAG_COLORS = ['#F0956E', '#7A9E6C', '#378ADD', '#A96CC4', '#E2A030', '#D4537E']
+
 export function SettingsPage() {
   const { t } = useTranslation()
   const { settings, fetchSettings, updateSettings } = useSettingsStore()
-  const { tags, fetchTags, deleteTag } = useTagStore()
+  const { tags, fetchTags, deleteTag, addTag } = useTagStore()
   const { tasks } = useTaskStore()
   const [user, setUser] = useState<User | null>(null)
   const [langPickerOpen, setLangPickerOpen] = useState(false)
   const [tagsOpen, setTagsOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
+  const [createTagOpen, setCreateTagOpen] = useState(false)
+  const [newTagName, setNewTagName] = useState('')
+  const [newTagColor, setNewTagColor] = useState(CREATE_TAG_COLORS[0])
+  const [savingTag, setSavingTag] = useState(false)
 
   useEffect(() => {
     fetchSettings()
@@ -64,12 +81,22 @@ export function SettingsPage() {
     return tasks.filter((task) => (task.tag_ids ?? []).includes(tagId)).length
   }
 
+  const handleCreateTag = async () => {
+    if (!newTagName.trim() || savingTag) return
+    setSavingTag(true)
+    await addTag(newTagName.trim(), newTagColor, 'tag')
+    setNewTagName('')
+    setNewTagColor(CREATE_TAG_COLORS[0])
+    setSavingTag(false)
+    setCreateTagOpen(false)
+  }
+
   return (
     <div className="flex flex-col min-h-screen pb-24" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
       <div className="px-5 pt-12 pb-5" style={{ backgroundColor: 'var(--color-primary)' }}>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginBottom: 2 }}>{t('settings.personalization')}</p>
-        <h1 style={{ fontSize: 32, color: 'white', fontWeight: 500, lineHeight: 1.1 }}>{t('settings.title')}</h1>
+        <h1 style={{ fontSize: 28, color: 'white', fontWeight: 500, lineHeight: 1.1 }}>{t('settings.title')}</h1>
       </div>
 
       {/* Profile */}
@@ -87,88 +114,89 @@ export function SettingsPage() {
       </div>
 
       {/* ОРГАНИЗАЦИЯ section */}
-      <div className="mx-4 mt-4">
-        <p className="section-label px-1 mb-2">{t('settings.organization')}</p>
-        <div className="rounded-[var(--radius-md)] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
-          <button className="w-full" onClick={() => setTagsOpen(true)}>
-            <SettingsRow
-              label={t('settings.tags')}
-              sublabel={tags.length > 0 ? `${tags.length}` : undefined}
-              right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
-            />
-          </button>
-          <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
-          <button className="w-full" onClick={() => alert('Projects page')}>
-            <SettingsRow
-              label={t('settings.projects_manage')}
-              sublabel={t('settings.projects_manage_sub')}
-              right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
-            />
-          </button>
-        </div>
+      <div style={{ marginTop: 24 }}>
+        <span style={SECTION_LABEL_STYLE}>{t('settings.organization')}</span>
+        <button className="w-full" onClick={() => setTagsOpen(true)}>
+          <SettingsRow
+            label={t('settings.tags')}
+            sublabel={tags.length > 0 ? `${tags.length}` : undefined}
+            right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
+            isFirst
+          />
+        </button>
+        <button className="w-full" onClick={() => alert('Projects page')}>
+          <SettingsRow
+            label={t('settings.projects_manage')}
+            sublabel={t('settings.projects_manage_sub')}
+            right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
+          />
+        </button>
       </div>
 
       {/* ЗАДАЧИ section */}
-      <div className="mx-4 mt-4">
-        <p className="section-label px-1 mb-2">{t('settings.tasks_section')}</p>
-        <div className="rounded-[var(--radius-md)] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
-          <SettingsRow
-            label={t('settings.show_description')}
-            sublabel={t('settings.show_description_sub')}
-            right={<Toggle on={settings?.show_description ?? true} onChange={(v) => updateSettings({ show_description: v })} />}
-          />
-          <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
-          <SettingsRow
-            label={t('settings.focus_mode')}
-            sublabel={t('settings.focus_mode_sub')}
-            right={<Toggle on={settings?.focus_mode ?? true} onChange={(v) => updateSettings({ focus_mode: v })} />}
-          />
-          <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
-          <SettingsRow
-            label={t('settings.streak')}
-            sublabel={t('settings.streak_sub')}
-            right={<Toggle on={settings?.show_streak ?? true} onChange={(v) => updateSettings({ show_streak: v })} />}
-          />
-        </div>
+      <div style={{ marginTop: 24 }}>
+        <span style={SECTION_LABEL_STYLE}>{t('settings.tasks_section')}</span>
+        <SettingsRow
+          label={t('settings.show_description')}
+          sublabel={t('settings.show_description_sub')}
+          right={<Toggle on={settings?.show_description ?? true} onChange={(v) => updateSettings({ show_description: v })} />}
+          isFirst
+        />
+        <SettingsRow
+          label={t('settings.focus_mode')}
+          sublabel={t('settings.focus_mode_sub')}
+          right={<Toggle on={settings?.focus_mode ?? true} onChange={(v) => updateSettings({ focus_mode: v })} />}
+        />
+        <SettingsRow
+          label={t('settings.streak')}
+          sublabel={t('settings.streak_sub')}
+          right={<Toggle on={settings?.show_streak ?? true} onChange={(v) => updateSettings({ show_streak: v })} />}
+        />
       </div>
 
       {/* ПРИЛОЖЕНИЕ section */}
-      <div className="mx-4 mt-4">
-        <p className="section-label px-1 mb-2">{t('settings.app_section')}</p>
-        <div className="rounded-[var(--radius-md)] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
-          <button className="w-full" onClick={() => alert('Notifications coming soon')}>
-            <SettingsRow
-              label={t('settings.notifications_nav')}
-              right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
-            />
-          </button>
-          <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
-          <button className="w-full" onClick={() => setLangPickerOpen(true)}>
-            <SettingsRow
-              label={t('settings.theme')}
-              sublabel={languageLabel()}
-              right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
-            />
-          </button>
-          <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
-          <button className="w-full" onClick={() => alert('Export coming soon')}>
-            <SettingsRow label={t('settings.export')} right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />} />
-          </button>
-          <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 16 }} />
-          <button className="w-full" onClick={() => setConfirmDeleteOpen(true)}>
-            <div className="flex items-center px-4 py-3.5">
-              <p className="text-[14px]" style={{ color: 'var(--color-overdue)' }}>{t('settings.delete_account')}</p>
-            </div>
-          </button>
-        </div>
+      <div style={{ marginTop: 24 }}>
+        <span style={SECTION_LABEL_STYLE}>{t('settings.app_section')}</span>
+        <button className="w-full" onClick={() => alert('Notifications coming soon')}>
+          <SettingsRow
+            label={t('settings.notifications_nav')}
+            right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
+            isFirst
+          />
+        </button>
+        <button className="w-full" onClick={() => setLangPickerOpen(true)}>
+          <SettingsRow
+            label={t('settings.theme')}
+            sublabel={languageLabel()}
+            right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
+          />
+        </button>
+        <button className="w-full" onClick={() => alert('Export coming soon')}>
+          <SettingsRow label={t('settings.export')} right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />} />
+        </button>
+        <button className="w-full" onClick={() => setConfirmDeleteOpen(true)}>
+          <div style={{ padding: '14px 16px', backgroundColor: 'white', borderBottom: '0.5px solid rgba(45,27,20,0.08)' }}>
+            <p style={{ fontSize: 14, color: 'var(--color-overdue)' }}>{t('settings.delete_account')}</p>
+          </div>
+        </button>
       </div>
 
       {/* Tags bottomsheet */}
       <Bottomsheet open={tagsOpen} onClose={() => setTagsOpen(false)} fullHeight>
         <div className="px-4 pb-6">
-          <p style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text)', padding: '12px 0 16px' }}>
-            {t('settings.tags')}
-          </p>
+          <div className="flex items-center justify-between" style={{ padding: '12px 0 16px' }}>
+            <p style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text)' }}>
+              {t('settings.tags')}
+            </p>
+            <button
+              onClick={() => setCreateTagOpen(true)}
+              className="flex items-center gap-1 active:opacity-60"
+              style={{ fontSize: 14, color: 'var(--color-primary)', fontWeight: 500 }}
+            >
+              <Plus size={16} />
+              Создать тег
+            </button>
+          </div>
           {tags.length === 0 ? (
             <p style={{ fontSize: 14, color: 'var(--color-text-muted)', textAlign: 'center', paddingTop: 32 }}>
               Тегов пока нет
@@ -183,7 +211,6 @@ export function SettingsPage() {
                     className="flex items-center gap-3 py-3"
                     style={{ borderBottom: '0.5px solid var(--color-border)' }}
                   >
-                    {/* Colored icon square */}
                     <div
                       className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0"
                       style={{ backgroundColor: `${tag.color}20` }}
@@ -196,10 +223,7 @@ export function SettingsPage() {
                         <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{count} задач</p>
                       )}
                     </div>
-                    <button
-                      onClick={() => deleteTag(tag.id)}
-                      className="p-2 active:opacity-50"
-                    >
+                    <button onClick={() => deleteTag(tag.id)} className="p-2 active:opacity-50">
                       <Trash2 size={16} style={{ color: 'var(--color-text-muted)' }} />
                     </button>
                   </div>
@@ -207,6 +231,73 @@ export function SettingsPage() {
               })}
             </div>
           )}
+        </div>
+      </Bottomsheet>
+
+      {/* Create tag bottomsheet */}
+      <Bottomsheet open={createTagOpen} onClose={() => { setCreateTagOpen(false); setNewTagName(''); setNewTagColor(CREATE_TAG_COLORS[0]) }}>
+        <div className="px-4 pb-6">
+          <p style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text)', padding: '12px 0 20px' }}>
+            Новый тег
+          </p>
+
+          {/* Name input */}
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-1">
+              <p style={{ fontSize: 11, color: '#AAAAAA', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Название</p>
+              <p style={{ fontSize: 11, color: '#AAAAAA' }}>{newTagName.length}/12</p>
+            </div>
+            <input
+              autoFocus
+              value={newTagName}
+              onChange={(e) => setNewTagName(e.target.value.slice(0, 12))}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreateTag()}
+              placeholder="Название тега"
+              className="w-full outline-none bg-transparent"
+              style={{
+                fontSize: 16,
+                color: 'var(--color-text)',
+                borderBottom: '1px solid var(--color-border-strong)',
+                paddingBottom: 8,
+              }}
+              maxLength={12}
+            />
+          </div>
+
+          {/* Color picker */}
+          <div className="mb-6">
+            <p style={{ fontSize: 11, color: '#AAAAAA', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>Цвет</p>
+            <div className="flex gap-3">
+              {CREATE_TAG_COLORS.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setNewTagColor(c)}
+                  className="w-8 h-8 rounded-full flex-shrink-0"
+                  style={{
+                    backgroundColor: c,
+                    outline: newTagColor === c ? `3px solid ${c}` : 'none',
+                    outlineOffset: 2,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Save button */}
+          <button
+            onClick={handleCreateTag}
+            className="w-full py-3.5 rounded-[14px]"
+            style={{
+              fontSize: 15,
+              backgroundColor: '#F0956E',
+              color: '#FFFFFF',
+              fontWeight: 500,
+              opacity: newTagName.trim() && !savingTag ? 1 : 0.5,
+              pointerEvents: newTagName.trim() && !savingTag ? 'auto' : 'none',
+            }}
+          >
+            {t('common.save')}
+          </button>
         </div>
       </Bottomsheet>
 
@@ -262,14 +353,23 @@ interface SettingsRowProps {
   label: string
   sublabel?: string
   right?: React.ReactNode
+  isFirst?: boolean
 }
 
-function SettingsRow({ label, sublabel, right }: SettingsRowProps) {
+function SettingsRow({ label, sublabel, right, isFirst }: SettingsRowProps) {
   return (
-    <div className="flex items-center justify-between px-4 py-3.5">
+    <div
+      className="flex items-center justify-between"
+      style={{
+        padding: '14px 16px',
+        backgroundColor: 'white',
+        borderTop: isFirst ? '0.5px solid rgba(45,27,20,0.08)' : 'none',
+        borderBottom: '0.5px solid rgba(45,27,20,0.08)',
+      }}
+    >
       <div>
-        <p className="text-[14px]" style={{ color: 'var(--color-text)' }}>{label}</p>
-        {sublabel && <p className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>{sublabel}</p>}
+        <p style={{ fontSize: 14, color: 'var(--color-text)' }}>{label}</p>
+        {sublabel && <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{sublabel}</p>}
       </div>
       {right}
     </div>

@@ -29,14 +29,15 @@ function StreakSquares({ heatmapData }: { heatmapData: Record<string, number> })
   }
   const opacity = (count: number) => {
     if (count === 0) return 0.15
-    if (count === 1) return 0.40
-    if (count <= 3) return 0.65
-    return 0.90
+    if (count === 1) return 0.35
+    if (count <= 3) return 0.55
+    if (count <= 5) return 0.75
+    return 0.95
   }
   return (
-    <div className="flex gap-1">
+    <div style={{ display: 'flex', gap: 3 }}>
       {days.map(({ key, count }) => (
-        <div key={key} className="rounded-[3px]" style={{ width: 12, height: 12, backgroundColor: `rgba(255,255,255,${opacity(count)})` }} />
+        <div key={key} style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: `rgba(255,255,255,${opacity(count)})`, flexShrink: 0 }} />
       ))}
     </div>
   )
@@ -81,7 +82,7 @@ export function TodayPage() {
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
-      <div className="px-5 pt-14 pb-5" style={{ backgroundColor: 'var(--color-primary)' }}>
+      <div style={{ backgroundColor: 'var(--color-primary)', paddingLeft: 16, paddingRight: 16, paddingTop: 56, paddingBottom: 20, overflow: 'hidden' }}>
         <p className="capitalize mb-1" style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.02em' }}>
           {headerDate}
         </p>
@@ -113,7 +114,6 @@ export function TodayPage() {
       <div className="flex-1 pb-24 pt-4">
         {showFocus && (
           <>
-            <p className="section-label px-5 pb-2">{t('today.focus_day')}</p>
             {focusTasks.length === 0 ? (
               <div className="mx-4 mb-4">
                 <button
