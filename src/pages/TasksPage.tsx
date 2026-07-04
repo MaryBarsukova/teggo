@@ -132,15 +132,17 @@ export function TasksPage() {
 
       {/* Search + tag filter */}
       <div style={{ backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
-        <div className="flex items-center gap-2.5 px-4 py-3">
-          <Search size={15} style={{ color: 'var(--color-inactive)', flexShrink: 0 }} />
-          <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t('tasks.search')}
-            className="flex-1 outline-none bg-transparent"
-            style={{ fontSize: 15, color: 'var(--color-text)' }}
-          />
+        <div className="px-4 py-3">
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-[12px]" style={{ backgroundColor: 'var(--color-bg)' }}>
+            <Search size={15} style={{ color: 'var(--color-inactive)', flexShrink: 0 }} />
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('tasks.search')}
+              className="flex-1 outline-none bg-transparent"
+              style={{ fontSize: 15, color: 'var(--color-text)' }}
+            />
+          </div>
         </div>
         {tags.length > 0 && (
           <>

@@ -30,12 +30,8 @@ export function TabBar() {
           key={to}
           to={to}
           end={exact}
-          className={({ isActive }) =>
-            `flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${
-              isActive ? '' : 'opacity-40'
-            }`
-          }
-          style={({ isActive }) => ({ color: isActive ? 'var(--color-primary)' : 'var(--color-text)' })}
+          className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors"
+          style={({ isActive }) => ({ color: isActive ? '#F0956E' : '#AAAAAA' })}
         >
           <Icon size={20} />
           <span style={{ fontSize: '10px', fontWeight: 500 }}>{t(key)}</span>

@@ -32,7 +32,7 @@ export function Toggle({ on, onChange, variant = 'default' }: ToggleProps) {
       onClick={() => onChange(!on)}
       className="relative flex items-center w-[48px] h-[26px] rounded-full transition-colors duration-200"
       style={{
-        backgroundColor: on ? 'var(--color-primary)' : 'var(--color-border)',
+        backgroundColor: on ? 'var(--color-primary)' : '#DDDDDD',
       }}
     >
       <span

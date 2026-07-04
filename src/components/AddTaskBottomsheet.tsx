@@ -364,21 +364,21 @@ export function AddTaskBottomsheet() {
           </div>
 
           {/* Bottom bar */}
-          <div className="flex items-center justify-between px-5 py-4">
-            <button
-              onClick={closeAddTask}
-              className="py-1 active:opacity-50"
-              style={{ fontSize: 15, color: 'var(--color-text-muted)' }}
-            >
-              {t('common.cancel')}
-            </button>
+          <div className="px-5 pt-3 pb-2">
             <button
               onClick={handleSave}
               disabled={!title.trim()}
-              className="px-8 py-2.5 rounded-full active:opacity-70 disabled:opacity-30"
-              style={{ fontSize: 15, backgroundColor: 'var(--color-primary)', color: 'white', fontWeight: 500 }}
+              className="w-full py-3.5 rounded-[14px] active:opacity-70 disabled:opacity-30 mb-2"
+              style={{ fontSize: 15, backgroundColor: '#F0956E', color: 'white', fontWeight: 500 }}
             >
               {t('common.save')}
+            </button>
+            <button
+              onClick={closeAddTask}
+              className="w-full py-2 active:opacity-50 text-center"
+              style={{ fontSize: 15, color: 'var(--color-text-muted)' }}
+            >
+              {t('common.cancel')}
             </button>
           </div>
         </div>

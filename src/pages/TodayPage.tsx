@@ -1,27 +1,27 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckSquare, Target } from 'lucide-react'
+import { CheckSquare, Target, Flame, Zap } from 'lucide-react'
 import { TaskCard } from '../components/TaskCard'
 import { FAB } from '../components/FAB'
 import { EmptyState } from '../components/EmptyState'
 import { FocusPickerBottomsheet } from '../components/FocusPickerBottomsheet'
+import { Toggle } from '../components/Toggle'
 import { useTaskStore } from '../store/taskStore'
 import { useStreakStore } from '../store/streakStore'
 import { useUIStore } from '../store/uiStore'
 import { useSettingsStore } from '../store/settingsStore'
 import type { Task } from '../types'
 
-function formatHeaderDate(): { weekday: string; date: string } {
+function formatHeaderDate(): string {
   const d = new Date()
-  return {
-    weekday: d.toLocaleDateString(undefined, { weekday: 'long' }),
-    date: d.toLocaleDateString(undefined, { month: 'long', day: 'numeric' }),
-  }
+  const weekday = d.toLocaleDateString(undefined, { weekday: 'long' })
+  const date = d.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })
+  return `${weekday}, ${date}`
 }
 
 function StreakSquares({ heatmapData }: { heatmapData: Record<string, number> }) {
   const days: { key: string; count: number }[] = []
-  for (let i = 6; i >= 0; i--) {
+  for (let i = 13; i >= 0; i--) {
     const d = new Date()
     d.setDate(d.getDate() - i)
     const key = d.toISOString().split('T')[0]
@@ -36,7 +36,7 @@ function StreakSquares({ heatmapData }: { heatmapData: Record<string, number> })
   return (
     <div className="flex gap-1">
       {days.map(({ key, count }) => (
-        <div key={key} className="rounded-[3px]" style={{ width: 13, height: 13, backgroundColor: `rgba(255,255,255,${opacity(count)})` }} />
+        <div key={key} className="rounded-[3px]" style={{ width: 12, height: 12, backgroundColor: `rgba(255,255,255,${opacity(count)})` }} />
       ))}
     </div>
   )
@@ -61,7 +61,7 @@ export function TodayPage() {
   const { tasks, fetchTasks } = useTaskStore()
   const { streak, fetchStreak } = useStreakStore()
   const { focusTaskIds, openFocusPicker, openAddTask } = useUIStore()
-  const settings = useSettingsStore((s) => s.settings)
+  const { settings, updateSettings } = useSettingsStore()
 
   useEffect(() => {
     fetchTasks()
@@ -70,7 +70,7 @@ export function TodayPage() {
 
   const today = new Date().toISOString().split('T')[0]
   const todayTasks = tasks.filter((task) => !task.is_done && task.date === today)
-  const { weekday, date } = formatHeaderDate()
+  const headerDate = formatHeaderDate()
 
   const showFocus = settings?.focus_mode ?? true
   const showStreak = settings?.show_streak ?? true
@@ -82,20 +82,31 @@ export function TodayPage() {
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
       <div className="px-5 pt-14 pb-5" style={{ backgroundColor: 'var(--color-primary)' }}>
-        <p className="capitalize mb-0.5" style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', letterSpacing: 0.2 }}>
-          {weekday}, {date}
+        <p className="capitalize mb-1" style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.02em' }}>
+          {headerDate}
         </p>
-        <h1 style={{ fontSize: 32, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: showStreak ? 10 : 0 }}>
+        <h1 style={{ fontSize: 28, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: showStreak ? 10 : 8 }}>
           {t('today.title')}
         </h1>
         {showStreak && (
-          <div className="flex items-center gap-2.5">
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>
+          <div className="flex items-center gap-2.5 mb-3">
+            <Flame size={14} style={{ color: 'rgba(255,255,255,0.85)', flexShrink: 0 }} />
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>
               {t('today.streak_days', { count: streak?.current_streak ?? 0 })} {t('today.streak_label')}
             </span>
             <StreakSquares heatmapData={streak?.heatmap_data ?? {}} />
           </div>
         )}
+        {/* Focus mode toggle */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Zap size={13} style={{ color: 'rgba(255,255,255,0.85)' }} />
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.85)', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Фокус дня
+            </span>
+          </div>
+          <Toggle variant="header" on={showFocus} onChange={(v) => updateSettings({ focus_mode: v })} />
+        </div>
       </div>
 
       {/* Content */}
