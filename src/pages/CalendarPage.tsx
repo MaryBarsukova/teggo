@@ -33,7 +33,7 @@ export function CalendarPage() {
   const days = getDaysInMonth(year, month)
 
   const rawMonth = viewDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
-  const monthName = (rawMonth.charAt(0).toUpperCase() + rawMonth.slice(1)).replace(' г.', '').replace(' г', '').trim()
+  const monthName = (rawMonth.charAt(0).toUpperCase() + rawMonth.slice(1)).replace(/\s*г\.?$/i, '').trim()
 
   const prevMonth = () => setViewDate(new Date(year, month - 1, 1))
   const nextMonth = () => setViewDate(new Date(year, month + 1, 1))
@@ -56,36 +56,36 @@ export function CalendarPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
-      <div className="px-5 pt-12 pb-4" style={{ backgroundColor: 'var(--color-primary)' }}>
-        <h1 style={{ fontSize: 32, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>{t('calendar.title')}</h1>
-        <p className="capitalize" style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>{monthName}</p>
+      <div style={{ backgroundColor: 'var(--color-primary)', paddingTop: 52, paddingBottom: 16, paddingLeft: 16, paddingRight: 16 }}>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 4 }}>{monthName}</p>
+        <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1 }}>{t('calendar.title')}</h1>
       </div>
 
       {/* Calendar grid */}
-      <div className="px-4 py-4" style={{ backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-[14px] capitalize" style={{ fontWeight: 500, color: 'var(--color-text)' }}>{monthName}</p>
-          <div className="flex gap-2">
-            <button onClick={prevMonth} className="p-1 rounded-full active:opacity-60">
+      <div style={{ padding: '16px', backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', textTransform: 'capitalize' }}>{monthName}</p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={prevMonth} style={{ padding: 4, borderRadius: 9999, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ChevronLeft size={18} style={{ color: 'var(--color-text-muted)' }} />
             </button>
-            <button onClick={nextMonth} className="p-1 rounded-full active:opacity-60">
+            <button onClick={nextMonth} style={{ padding: 4, borderRadius: 9999, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ChevronRight size={18} style={{ color: 'var(--color-text-muted)' }} />
             </button>
           </div>
         </div>
 
         {/* Weekday headers */}
-        <div className="grid grid-cols-7 mb-2">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: 8 }}>
           {WEEKDAYS.map((d) => (
-            <div key={d} className="text-center text-[11px]" style={{ color: 'var(--color-text-muted)' }}>{d}</div>
+            <div key={d} style={{ textAlign: 'center', fontSize: 11, fontWeight: 500, color: '#AAAAAA' }}>{d}</div>
           ))}
         </div>
 
         {/* Days grid */}
-        <div className="grid grid-cols-7 gap-y-1">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: 4 }}>
           {days.map((day, idx) => {
             if (!day) return <div key={`empty-${idx}`} />
             const dateStr = day.toISOString().split('T')[0]
@@ -98,11 +98,17 @@ export function CalendarPage() {
               <button
                 key={dateStr}
                 onClick={() => setSelectedCalendarDate(dateStr)}
-                className="flex flex-col items-center py-1"
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 4, paddingBottom: 4, background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 <div
-                  className="w-8 h-8 flex items-center justify-center rounded-full text-[13px]"
                   style={{
+                    width: 36,
+                    height: 36,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 9999,
+                    fontSize: 13,
                     backgroundColor: isToday ? 'var(--color-primary)' : isSelected ? 'var(--color-primary-light)' : 'transparent',
                     color: isToday ? 'white' : isSelected ? 'var(--color-primary-text)' : isCurrentMonth ? 'var(--color-text)' : 'var(--color-inactive)',
                     fontWeight: isToday || isSelected ? 500 : 400,
@@ -112,8 +118,7 @@ export function CalendarPage() {
                 </div>
                 {hasTasks && (
                   <div
-                    className="w-1 h-1 rounded-full mt-0.5"
-                    style={{ backgroundColor: isToday ? 'white' : 'var(--color-primary)' }}
+                    style={{ width: 4, height: 4, borderRadius: 9999, marginTop: 2, backgroundColor: isToday ? 'white' : 'var(--color-primary)' }}
                   />
                 )}
               </button>
@@ -123,16 +128,17 @@ export function CalendarPage() {
       </div>
 
       {/* Selected day tasks */}
-      <div className="flex-1 pb-24 pt-4">
+      <div style={{ flex: 1, paddingBottom: 96, paddingTop: 16 }}>
         {selectedTasks.length === 0 ? (
-          <p className="px-5 py-2 section-label">{t('calendar.empty_day', { date: selectedDateLabel })}</p>
+          <p style={{ fontSize: 14, color: '#AAAAAA', textAlign: 'center', padding: '24px 16px' }}>
+            {t('calendar.empty_day', { date: selectedDateLabel })}
+          </p>
         ) : (
           <>
-            <p className="section-label px-5 pb-2">{t('calendar.tasks_count', { date: selectedDateLabel, count: selectedTasks.length })}</p>
-            <div
-              className="mx-4 rounded-[16px] overflow-hidden"
-              style={{ backgroundColor: 'var(--color-surface)', boxShadow: '0 1px 4px rgba(28,16,7,0.07)' }}
-            >
+            <p style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#AAAAAA', padding: '0 20px 8px' }}>
+              {t('calendar.tasks_count', { date: selectedDateLabel, count: selectedTasks.length })}
+            </p>
+            <div style={{ backgroundColor: 'var(--color-surface)' }}>
               {selectedTasks.map((task: Task, i: number) => (
                 <React.Fragment key={task.id}>
                   {i > 0 && <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />}

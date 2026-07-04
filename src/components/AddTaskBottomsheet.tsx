@@ -136,84 +136,93 @@ export function AddTaskBottomsheet() {
   const selectedProject = projects.find((p) => p.id === projectId)
   const showDescription = settings?.show_description ?? true
 
+  const rowStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 14,
+    paddingLeft: 20,
+    paddingRight: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+  }
+
   return (
     <>
       <Bottomsheet open={isAddTaskOpen} onClose={closeAddTask} fullHeight>
         <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom)' }}>
 
           {/* Title input */}
-          <div className="px-5 pt-4 pb-3" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
+          <div style={{ padding: '16px 20px 12px', borderBottom: '0.5px solid var(--color-border)' }}>
             <input
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t('tasks.new_task')}
-              className="w-full outline-none bg-transparent"
-              style={{ fontSize: 20, fontWeight: 400, color: 'var(--color-text)', lineHeight: 1.3 }}
+              style={{ width: '100%', outline: 'none', background: 'transparent', fontSize: 20, fontWeight: 400, color: 'var(--color-text)', lineHeight: 1.3, border: 'none' }}
             />
           </div>
 
           {/* Date / Time / Repeat rows */}
           <div style={{ borderBottom: '0.5px solid var(--color-border)' }}>
             {/* Date */}
-            <div className="relative" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
+            <div style={{ position: 'relative', borderBottom: '0.5px solid var(--color-border)' }}>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 1 }}
               />
-              <div className="flex items-center gap-3.5 px-5 py-3.5">
-                <CalendarDays size={17} style={{ color: date ? 'var(--color-primary)' : 'var(--color-inactive)', flexShrink: 0 }} />
-                <span style={{ flex: 1, fontSize: 15, color: 'var(--color-text)' }}>{t('tasks.date_label')}</span>
+              <div style={rowStyle}>
+                <CalendarDays size={16} style={{ color: date ? 'var(--color-primary)' : '#AAAAAA', flexShrink: 0 }} />
+                <span style={{ flex: 1, fontSize: 14, color: 'var(--color-text)' }}>{t('tasks.date_label')}</span>
                 {date ? (
-                  <div className="flex items-center gap-2" style={{ position: 'relative', zIndex: 2 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative', zIndex: 2 }}>
                     <span style={{ fontSize: 14, color: 'var(--color-primary)', fontWeight: 500 }}>{dateLabel()}</span>
-                    <button onClick={(e) => { e.stopPropagation(); setDate('') }} className="active:opacity-50">
+                    <button onClick={(e) => { e.stopPropagation(); setDate('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                       <X size={14} style={{ color: 'var(--color-text-muted)' }} />
                     </button>
                   </div>
                 ) : (
-                  <span style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>—</span>
+                  <span style={{ fontSize: 14, color: '#AAAAAA' }}>—</span>
                 )}
               </div>
             </div>
 
             {/* Time */}
-            <div className="relative" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
+            <div style={{ position: 'relative', borderBottom: '0.5px solid var(--color-border)' }}>
               <input
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
                 style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 1 }}
               />
-              <div className="flex items-center gap-3.5 px-5 py-3.5">
-                <Clock size={17} style={{ color: time ? 'var(--color-primary)' : 'var(--color-inactive)', flexShrink: 0 }} />
-                <span style={{ flex: 1, fontSize: 15, color: 'var(--color-text)' }}>{t('tasks.time_label')}</span>
+              <div style={rowStyle}>
+                <Clock size={16} style={{ color: time ? 'var(--color-primary)' : '#AAAAAA', flexShrink: 0 }} />
+                <span style={{ flex: 1, fontSize: 14, color: 'var(--color-text)' }}>{t('tasks.time_label')}</span>
                 {time ? (
-                  <div className="flex items-center gap-2" style={{ position: 'relative', zIndex: 2 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative', zIndex: 2 }}>
                     <span style={{ fontSize: 14, color: 'var(--color-primary)', fontWeight: 500 }}>{time}</span>
-                    <button onClick={(e) => { e.stopPropagation(); setTime('') }} className="active:opacity-50">
+                    <button onClick={(e) => { e.stopPropagation(); setTime('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                       <X size={14} style={{ color: 'var(--color-text-muted)' }} />
                     </button>
                   </div>
                 ) : (
-                  <span style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>—</span>
+                  <span style={{ fontSize: 14, color: '#AAAAAA' }}>—</span>
                 )}
               </div>
             </div>
 
             {/* Repeat */}
             <button
-              className="flex items-center gap-3.5 px-5 py-3.5 w-full text-left active:opacity-60"
+              style={{ ...rowStyle, width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
               onClick={() => setShowRepeat(true)}
             >
-              <Repeat2 size={17} style={{ color: repeatType !== 'none' ? 'var(--color-primary)' : 'var(--color-inactive)', flexShrink: 0 }} />
-              <span style={{ flex: 1, fontSize: 15, color: 'var(--color-text)' }}>{t('tasks.repeat')}</span>
-              <span style={{ fontSize: 14, color: repeatType !== 'none' ? 'var(--color-primary)' : 'var(--color-text-muted)', fontWeight: repeatType !== 'none' ? 500 : 400 }}>
+              <Repeat2 size={16} style={{ color: repeatType !== 'none' ? 'var(--color-primary)' : '#AAAAAA', flexShrink: 0 }} />
+              <span style={{ flex: 1, fontSize: 14, color: 'var(--color-text)' }}>{t('tasks.repeat')}</span>
+              <span style={{ fontSize: 14, color: repeatType !== 'none' ? 'var(--color-primary)' : '#AAAAAA', fontWeight: repeatType !== 'none' ? 500 : 400 }}>
                 {repeatLabel() ?? t('tasks.repeat_never')}
               </span>
-              <ChevronRight size={14} style={{ color: 'var(--color-inactive)', marginLeft: 2 }} />
+              <ChevronRight size={14} style={{ color: '#AAAAAA', marginLeft: 2 }} />
             </button>
           </div>
 
@@ -221,16 +230,15 @@ export function AddTaskBottomsheet() {
           <div style={{ borderBottom: '0.5px solid var(--color-border)' }}>
             {/* Tags row */}
             <div style={{ borderBottom: '0.5px solid var(--color-border)', padding: '12px 20px' }}>
-              <div className="flex items-start gap-3.5">
-                <Tag size={17} style={{ color: tagIds.length > 0 ? 'var(--color-primary)' : 'var(--color-inactive)', flexShrink: 0, marginTop: 3 }} />
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                <Tag size={16} style={{ color: tagIds.length > 0 ? 'var(--color-primary)' : '#AAAAAA', flexShrink: 0, marginTop: 3 }} />
                 <div style={{ flex: 1 }}>
-                  <div className="flex flex-wrap gap-1.5 items-center">
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
                     {tags.filter((tg) => tagIds.includes(tg.id)).map((tag) => (
                       <button
                         key={tag.id}
                         onClick={() => toggleTag(tag.id)}
-                        className="flex items-center gap-1 px-2.5 py-1 rounded-full active:opacity-70"
-                        style={{ fontSize: 13, backgroundColor: `${tag.color}22`, color: tag.color, fontWeight: 500 }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 9999, fontSize: 13, backgroundColor: `${tag.color}22`, color: tag.color, fontWeight: 500, border: 'none', cursor: 'pointer' }}
                       >
                         <Check size={11} />
                         {tag.name}
@@ -240,8 +248,7 @@ export function AddTaskBottomsheet() {
                       <button
                         key={tag.id}
                         onClick={() => toggleTag(tag.id)}
-                        className="flex items-center gap-1 px-2.5 py-1 rounded-full active:opacity-70"
-                        style={{ fontSize: 13, backgroundColor: 'var(--color-bg)', color: 'var(--color-text-secondary)', border: '0.5px solid var(--color-border-strong)' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 9999, fontSize: 13, backgroundColor: 'var(--color-bg)', color: 'var(--color-text-secondary)', border: '0.5px solid var(--color-border-strong)', cursor: 'pointer' }}
                       >
                         {tag.name}
                       </button>
@@ -249,8 +256,7 @@ export function AddTaskBottomsheet() {
                     {!addingTag && (
                       <button
                         onClick={() => setAddingTag(true)}
-                        className="px-2.5 py-1 rounded-full active:opacity-70"
-                        style={{ fontSize: 13, color: 'var(--color-primary)', border: '1px dashed var(--color-primary)' }}
+                        style={{ padding: '5px 10px', borderRadius: 9999, fontSize: 13, color: 'var(--color-primary)', border: '1px dashed var(--color-primary)', background: 'none', cursor: 'pointer' }}
                       >
                         {t('tasks.new_tag')}
                       </button>
@@ -258,39 +264,40 @@ export function AddTaskBottomsheet() {
                   </div>
 
                   {addingTag && (
-                    <div className="mt-2">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div
-                          className="w-5 h-5 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: newTagColor }}
-                        />
+                    <div style={{ marginTop: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: 9999, flexShrink: 0, backgroundColor: newTagColor }} />
                         <input
                           autoFocus
                           value={newTagName}
                           onChange={(e) => setNewTagName(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && handleCreateTag()}
                           placeholder="Название тега"
-                          className="flex-1 outline-none bg-transparent"
-                          style={{ fontSize: 14, color: 'var(--color-text)', borderBottom: '1px solid var(--color-border-strong)', paddingBottom: 4 }}
+                          style={{ flex: 1, outline: 'none', background: 'transparent', fontSize: 14, color: 'var(--color-text)', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderBottom: '1px solid var(--color-border-strong)', paddingBottom: 4 }}
                           maxLength={12}
                         />
-                        <button onClick={handleCreateTag} className="active:opacity-50">
+                        <button onClick={handleCreateTag} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                           <Check size={16} style={{ color: 'var(--color-primary)' }} />
                         </button>
-                        <button onClick={() => setAddingTag(false)} className="active:opacity-50">
+                        <button onClick={() => setAddingTag(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                           <X size={14} style={{ color: 'var(--color-text-muted)' }} />
                         </button>
                       </div>
-                      <div className="flex gap-2">
+                      <div style={{ display: 'flex', gap: 8 }}>
                         {['#F0956E', '#7A9E6C', '#378ADD', '#A96CC4', '#E2A030', '#D4537E'].map((c) => (
                           <button
                             key={c}
                             onClick={() => setNewTagColor(c)}
-                            className="w-6 h-6 rounded-full flex-shrink-0"
                             style={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: 9999,
+                              flexShrink: 0,
                               backgroundColor: c,
                               outline: newTagColor === c ? `2px solid ${c}` : 'none',
                               outlineOffset: 2,
+                              border: 'none',
+                              cursor: 'pointer',
                             }}
                           />
                         ))}
@@ -304,9 +311,8 @@ export function AddTaskBottomsheet() {
             {/* Project row */}
             <div style={{ borderBottom: showDescription ? '0.5px solid var(--color-border)' : 'none' }}>
               <button
-                className="flex items-center gap-3.5 px-5 py-3.5 w-full text-left active:opacity-60"
+                style={{ ...rowStyle, width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
                 onClick={() => {
-                  // Cycle through projects or clear
                   if (!projectId) {
                     if (projects.length > 0) setProjectId(projects[0].id)
                   } else {
@@ -316,27 +322,27 @@ export function AddTaskBottomsheet() {
                   }
                 }}
               >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={projectId ? 'var(--color-primary)' : 'var(--color-inactive)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={projectId ? 'var(--color-primary)' : '#AAAAAA'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                 </svg>
-                <span style={{ flex: 1, fontSize: 15, color: 'var(--color-text)' }}>{t('tasks.project')}</span>
+                <span style={{ flex: 1, fontSize: 14, color: 'var(--color-text)' }}>{t('tasks.project')}</span>
                 {selectedProject ? (
-                  <div className="flex items-center gap-2">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 14, color: selectedProject.color, fontWeight: 500 }}>{selectedProject.name}</span>
-                    <button onClick={(e) => { e.stopPropagation(); setProjectId(null) }} className="active:opacity-50">
+                    <button onClick={(e) => { e.stopPropagation(); setProjectId(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                       <X size={14} style={{ color: 'var(--color-text-muted)' }} />
                     </button>
                   </div>
                 ) : (
-                  <span style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>—</span>
+                  <span style={{ fontSize: 14, color: '#AAAAAA' }}>—</span>
                 )}
               </button>
             </div>
 
             {/* Description row - only if show_description enabled */}
             {showDescription && (
-              <div className="flex items-start gap-3.5 px-5 py-3.5">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={description ? 'var(--color-primary)' : 'var(--color-inactive)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 2, flexShrink: 0 }}>
+              <div style={{ ...rowStyle, alignItems: 'flex-start' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={description ? 'var(--color-primary)' : '#AAAAAA'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 2, flexShrink: 0 }}>
                   <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
                 </svg>
                 <textarea
@@ -344,33 +350,36 @@ export function AddTaskBottomsheet() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={t('tasks.add_description')}
                   rows={2}
-                  className="flex-1 outline-none bg-transparent resize-none"
-                  style={{ fontSize: 15, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}
+                  style={{ flex: 1, outline: 'none', background: 'transparent', resize: 'none', fontSize: 14, color: 'var(--color-text-secondary)', lineHeight: 1.5, border: 'none' }}
                 />
               </div>
             )}
           </div>
 
           {/* Bottom bar */}
-          <div className="px-5 pt-3 pb-2">
+          <div style={{ padding: 16 }}>
             <button
               onClick={handleSave}
-              className="w-full py-3.5 rounded-[14px] mb-2"
               style={{
+                width: '100%',
+                padding: '14px 0',
+                borderRadius: 14,
+                marginBottom: 8,
                 fontSize: 15,
                 backgroundColor: '#F0956E',
                 color: '#FFFFFF',
                 fontWeight: 500,
-                opacity: title.trim() ? 1 : 0.5,
+                opacity: title.trim() ? 1 : 0.4,
                 pointerEvents: title.trim() ? 'auto' : 'none',
+                border: 'none',
+                cursor: 'pointer',
               }}
             >
               {t('common.save')}
             </button>
             <button
               onClick={closeAddTask}
-              className="w-full py-2 active:opacity-50 text-center"
-              style={{ fontSize: 15, color: 'var(--color-text-muted)' }}
+              style={{ width: '100%', padding: '8px 0', textAlign: 'center', fontSize: 14, color: '#AAAAAA', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               {t('common.cancel')}
             </button>
@@ -380,7 +389,7 @@ export function AddTaskBottomsheet() {
 
       {/* Repeat picker */}
       <Bottomsheet open={showRepeat} onClose={() => setShowRepeat(false)}>
-        <div className="px-5 pb-8">
+        <div style={{ padding: '0 20px 32px' }}>
           <p style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text)', padding: '12px 0 16px' }}>
             {t('tasks.repeat')}
           </p>
@@ -388,8 +397,7 @@ export function AddTaskBottomsheet() {
             <button
               key={type}
               onClick={() => { setRepeatType(type); if (type !== 'weekly') setShowRepeat(false) }}
-              className="w-full flex items-center justify-between active:opacity-60"
-              style={{ padding: '14px 0', borderBottom: '0.5px solid var(--color-border)' }}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', background: 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderBottom: '0.5px solid var(--color-border)', cursor: 'pointer' }}
             >
               <span style={{ fontSize: 15, color: 'var(--color-text)' }}>
                 {type === 'none' ? t('tasks.repeat_never') : type === 'daily' ? t('tasks.repeat_daily') : type === 'weekly' ? t('tasks.repeat_weekly') : t('tasks.repeat_monthly')}
@@ -399,19 +407,22 @@ export function AddTaskBottomsheet() {
           ))}
           {repeatType === 'weekly' && (
             <div style={{ marginTop: 20 }}>
-              <p className="section-label mb-3">Дни недели</p>
-              <div className="flex gap-2">
+              <p style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#AAAAAA', marginBottom: 12 }}>Дни недели</p>
+              <div style={{ display: 'flex', gap: 8 }}>
                 {WEEKDAYS.map((day, idx) => (
                   <button
                     key={idx}
                     onClick={() => setRepeatDays((p) => p.includes(idx) ? p.filter((d) => d !== idx) : [...p, idx])}
-                    className="flex-1 py-2.5 rounded-[10px] active:opacity-70"
                     style={{
+                      flex: 1,
+                      padding: '10px 0',
+                      borderRadius: 10,
                       fontSize: 13,
                       fontWeight: repeatDays.includes(idx) ? 500 : 400,
                       backgroundColor: repeatDays.includes(idx) ? 'var(--color-primary)' : 'var(--color-bg)',
                       color: repeatDays.includes(idx) ? 'white' : 'var(--color-text-secondary)',
                       border: `1px solid ${repeatDays.includes(idx) ? 'var(--color-primary)' : 'var(--color-border-strong)'}`,
+                      cursor: 'pointer',
                     }}
                   >
                     {day}
@@ -420,8 +431,7 @@ export function AddTaskBottomsheet() {
               </div>
               <button
                 onClick={() => setShowRepeat(false)}
-                className="w-full py-3.5 rounded-full mt-5 active:opacity-70"
-                style={{ backgroundColor: 'var(--color-primary)', color: 'white', fontSize: 15, fontWeight: 500 }}
+                style={{ width: '100%', padding: '14px 0', borderRadius: 9999, marginTop: 20, backgroundColor: 'var(--color-primary)', color: 'white', fontSize: 15, fontWeight: 500, border: 'none', cursor: 'pointer' }}
               >
                 {t('common.done')}
               </button>

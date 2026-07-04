@@ -46,7 +46,7 @@ function StreakSquares({ heatmapData }: { heatmapData: Record<string, number> })
 function TaskGroup({ tasks, checkboxColor }: { tasks: Task[]; checkboxColor?: 'peach' | 'gray' }) {
   if (tasks.length === 0) return null
   return (
-    <div className="mx-4 rounded-[16px] overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
+    <div style={{ backgroundColor: 'var(--color-surface)' }}>
       {tasks.map((task, i) => (
         <React.Fragment key={task.id}>
           {i > 0 && <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />}
@@ -80,28 +80,34 @@ export function TodayPage() {
   const otherTasks = showFocus ? todayTasks.filter((t) => !focusTaskIds.includes(t.id)) : todayTasks
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
-      <div style={{ backgroundColor: 'var(--color-primary)', paddingLeft: 16, paddingRight: 16, paddingTop: 56, paddingBottom: 20, overflow: 'hidden' }}>
-        <p className="capitalize mb-1" style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.02em' }}>
+      <div style={{
+        backgroundColor: 'var(--color-primary)',
+        paddingTop: 52,
+        paddingBottom: 16,
+        paddingLeft: 16,
+        paddingRight: 16,
+        overflow: 'hidden',
+      }}>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', textTransform: 'capitalize', marginBottom: 4 }}>
           {headerDate}
         </p>
-        <h1 style={{ fontSize: 28, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: showStreak ? 10 : 8 }}>
+        <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 10 }}>
           {t('today.title')}
         </h1>
         {showStreak && (
-          <div className="flex items-center gap-2.5 mb-3">
-            <Flame size={14} style={{ color: 'rgba(255,255,255,0.85)', flexShrink: 0 }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <Flame size={13} style={{ color: 'rgba(255,255,255,0.85)', flexShrink: 0 }} />
             <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>
               {t('today.streak_days', { count: streak?.current_streak ?? 0 })} {t('today.streak_label')}
             </span>
             <StreakSquares heatmapData={streak?.heatmap_data ?? {}} />
           </div>
         )}
-        {/* Focus mode toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flexShrink: 1 }}>
-            <Zap size={13} style={{ color: 'rgba(255,255,255,0.85)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Zap size={12} style={{ color: 'rgba(255,255,255,0.85)' }} />
             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.85)', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               Фокус дня
             </span>
@@ -111,36 +117,56 @@ export function TodayPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 pb-24 pt-4">
+      <div style={{ flex: 1, paddingTop: 16, paddingBottom: 96 }}>
         {showFocus && (
           <>
             {focusTasks.length === 0 ? (
-              <div className="mx-4 mb-4">
-                <button
-                  onClick={openFocusPicker}
-                  className="w-full rounded-[16px] py-6 flex flex-col items-center gap-2 active:opacity-70"
-                  style={{ border: '1.5px dashed var(--color-primary)', backgroundColor: 'var(--color-primary-light)' }}
-                >
-                  <Target size={24} style={{ color: 'var(--color-primary)', opacity: 0.7 }} />
-                  <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', textAlign: 'center', lineHeight: 1.4 }}>
-                    {t('today.focus_empty')}
-                  </p>
-                  <span style={{ fontSize: 14, color: 'var(--color-primary)', fontWeight: 500 }}>
-                    + {t('today.pick_focus')}
-                  </span>
-                </button>
-              </div>
+              <button
+                onClick={openFocusPicker}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: 'calc(100% - 32px)',
+                  margin: '0 16px 16px',
+                  border: '1.5px dashed #F0956E',
+                  borderRadius: 16,
+                  padding: 24,
+                  backgroundColor: '#FDEEE6',
+                  cursor: 'pointer',
+                  background: '#FDEEE6',
+                }}
+              >
+                <Target size={22} style={{ color: '#F0956E', opacity: 0.7 }} />
+                <p style={{ fontSize: 14, color: '#6B5B52', textAlign: 'center', lineHeight: 1.4 }}>
+                  {t('today.focus_empty')}
+                </p>
+                <span style={{ fontSize: 14, color: '#F0956E', fontWeight: 500 }}>
+                  + {t('today.pick_focus')}
+                </span>
+              </button>
             ) : (
-              <div className="mb-4">
-                <TaskGroup tasks={focusTasks} checkboxColor="peach" />
-              </div>
+              <TaskGroup tasks={focusTasks} checkboxColor="peach" />
             )}
           </>
         )}
 
         {(showFocus ? otherTasks : todayTasks).length > 0 && (
           <>
-            <p className="section-label px-5 pb-2">{t('today.tasks_label')}</p>
+            <span style={{
+              display: 'block',
+              fontSize: 11,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: '#AAAAAA',
+              paddingLeft: 16,
+              paddingRight: 16,
+              paddingTop: 16,
+              paddingBottom: 8,
+            }}>
+              {t('today.tasks_label')}
+            </span>
             <TaskGroup tasks={showFocus ? otherTasks : todayTasks} />
           </>
         )}

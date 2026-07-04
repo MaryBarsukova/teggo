@@ -34,14 +34,9 @@ function groupByDoneAt(tasks: Task[]): { label: string; tasks: Task[] }[] {
 }
 
 function TaskGroup({ tasks }: { tasks: Task[] }) {
+  if (tasks.length === 0) return null
   return (
-    <div
-      className="mx-4 rounded-[16px] overflow-hidden"
-      style={{
-        backgroundColor: 'var(--color-surface)',
-        boxShadow: '0 1px 4px rgba(28,16,7,0.07)',
-      }}
-    >
+    <div style={{ backgroundColor: 'var(--color-surface)' }}>
       {tasks.map((task, i) => (
         <React.Fragment key={task.id}>
           {i > 0 && (
@@ -87,42 +82,50 @@ export function TasksPage() {
   const count = activeTab === 'progress' ? inProgress.length : done.length
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
-      <div style={{ backgroundColor: 'var(--color-primary)' }}>
-        <div className="px-5 pt-12 pb-0">
-          <h1 style={{ fontSize: 32, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>
-            {t('tasks.title')}
-          </h1>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginBottom: 14 }}>
-            {count} {activeTab === 'progress' ? t('tasks.in_progress').toLowerCase() : t('tasks.done').toLowerCase()}
-          </p>
-        </div>
+      <div style={{ backgroundColor: 'var(--color-primary)', paddingTop: 52, paddingBottom: 0, paddingLeft: 16, paddingRight: 16 }}>
+        <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>
+          {t('tasks.title')}
+        </h1>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 14 }}>
+          {count} {activeTab === 'progress' ? t('tasks.in_progress').toLowerCase() : t('tasks.done').toLowerCase()}
+        </p>
 
         {/* Tabs */}
-        <div className="flex px-5 gap-6">
+        <div style={{ display: 'flex', gap: 24 }}>
           <button
             onClick={() => setActiveTab('progress')}
-            className="pb-3"
             style={{
+              paddingBottom: 12,
               fontSize: 15,
               color: 'white',
               fontWeight: activeTab === 'progress' ? 500 : 400,
-              opacity: activeTab === 'progress' ? 1 : 0.6,
+              opacity: activeTab === 'progress' ? 1 : 0.55,
+              background: 'none',
+              borderTop: 'none',
+              borderLeft: 'none',
+              borderRight: 'none',
               borderBottom: activeTab === 'progress' ? '2px solid white' : '2px solid transparent',
+              cursor: 'pointer',
             }}
           >
             {t('tasks.active_tab')}
           </button>
           <button
             onClick={() => setActiveTab('done')}
-            className="pb-3"
             style={{
+              paddingBottom: 12,
               fontSize: 15,
               color: 'white',
               fontWeight: activeTab === 'done' ? 500 : 400,
-              opacity: activeTab === 'done' ? 1 : 0.6,
+              opacity: activeTab === 'done' ? 1 : 0.55,
+              background: 'none',
+              borderTop: 'none',
+              borderLeft: 'none',
+              borderRight: 'none',
               borderBottom: activeTab === 'done' ? '2px solid white' : '2px solid transparent',
+              cursor: 'pointer',
             }}
           >
             {t('tasks.done_tab')}
@@ -132,60 +135,60 @@ export function TasksPage() {
 
       {/* Search + tag filter */}
       <div style={{ backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
-        <div className="px-4 py-3">
-          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-[12px]" style={{ backgroundColor: 'var(--color-bg)' }}>
+        <div style={{ padding: '12px 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, backgroundColor: 'var(--color-bg)' }}>
             <Search size={15} style={{ color: 'var(--color-inactive)', flexShrink: 0 }} />
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('tasks.search')}
-              className="flex-1 outline-none bg-transparent"
-              style={{ fontSize: 15, color: 'var(--color-text)' }}
+              style={{ flex: 1, outline: 'none', background: 'transparent', fontSize: 15, color: 'var(--color-text)', border: 'none' }}
             />
           </div>
         </div>
         {tags.length > 0 && (
-          <>
-            <p className="section-label px-4 pb-1.5">{t('tasks.filter_by_tag')}</p>
-            <div
-              className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide"
+          <div style={{ display: 'flex', gap: 8, padding: '0 16px 12px', overflowX: 'auto' }} className="scrollbar-hide">
+            <button
+              onClick={() => setActiveTagId(null)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 9999,
+                flexShrink: 0,
+                fontSize: 13,
+                backgroundColor: activeTagId === null ? 'var(--color-primary)' : 'var(--color-bg)',
+                color: activeTagId === null ? 'white' : 'var(--color-text-secondary)',
+                border: `1px solid ${activeTagId === null ? 'var(--color-primary)' : 'var(--color-border-strong)'}`,
+                fontWeight: activeTagId === null ? 500 : 400,
+                cursor: 'pointer',
+              }}
             >
+              {t('tasks.all')}
+            </button>
+            {tags.map((tag) => (
               <button
-                onClick={() => setActiveTagId(null)}
-                className="px-3 py-1.5 rounded-full flex-shrink-0"
+                key={tag.id}
+                onClick={() => setActiveTagId(activeTagId === tag.id ? null : tag.id)}
                 style={{
+                  padding: '6px 12px',
+                  borderRadius: 9999,
+                  flexShrink: 0,
                   fontSize: 13,
-                  backgroundColor: activeTagId === null ? 'var(--color-primary)' : 'var(--color-bg)',
-                  color: activeTagId === null ? 'white' : 'var(--color-text-secondary)',
-                  border: `1px solid ${activeTagId === null ? 'var(--color-primary)' : 'var(--color-border-strong)'}`,
-                  fontWeight: activeTagId === null ? 500 : 400,
+                  backgroundColor: activeTagId === tag.id ? `${tag.color}22` : 'var(--color-bg)',
+                  color: activeTagId === tag.id ? tag.color : 'var(--color-text-secondary)',
+                  border: `1px solid ${activeTagId === tag.id ? tag.color : 'var(--color-border-strong)'}`,
+                  fontWeight: activeTagId === tag.id ? 500 : 400,
+                  cursor: 'pointer',
                 }}
               >
-                {t('tasks.all')}
+                {tag.name}
               </button>
-              {tags.map((tag) => (
-                <button
-                  key={tag.id}
-                  onClick={() => setActiveTagId(activeTagId === tag.id ? null : tag.id)}
-                  className="px-3 py-1.5 rounded-full flex-shrink-0"
-                  style={{
-                    fontSize: 13,
-                    backgroundColor: activeTagId === tag.id ? `${tag.color}22` : 'var(--color-bg)',
-                    color: activeTagId === tag.id ? tag.color : 'var(--color-text-secondary)',
-                    border: `1px solid ${activeTagId === tag.id ? tag.color : 'var(--color-border-strong)'}`,
-                    fontWeight: activeTagId === tag.id ? 500 : 400,
-                  }}
-                >
-                  {tag.name}
-                </button>
-              ))}
-            </div>
-          </>
+            ))}
+          </div>
         )}
       </div>
 
       {/* Task list */}
-      <div className="flex-1 pb-24 pt-4">
+      <div style={{ flex: 1, paddingBottom: 96, paddingTop: 16 }}>
         {activeTab === 'progress' ? (
           inProgress.length === 0 ? (
             <EmptyState icon={<ListTodo size={40} />} text={t('tasks.empty_progress')} />
@@ -196,15 +199,12 @@ export function TasksPage() {
           done.length === 0 ? (
             <EmptyState icon={<ListTodo size={40} />} text={t('tasks.empty_done')} />
           ) : (
-            <div className="flex flex-col gap-5">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {doneGroups.map(({ label, tasks: groupTasks }) => (
                 <div key={label}>
-                  <div className="flex items-center gap-2 px-5 pb-2">
-                    <p className="section-label">{label}</p>
-                    <span
-                      className="px-2 py-0.5 rounded-full text-white"
-                      style={{ fontSize: 11, backgroundColor: 'var(--color-primary)' }}
-                    >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 20px 8px' }}>
+                    <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#AAAAAA' }}>{label}</span>
+                    <span style={{ fontSize: 11, backgroundColor: 'var(--color-primary)', color: 'white', padding: '2px 8px', borderRadius: 9999 }}>
                       {groupTasks.length}
                     </span>
                   </div>
