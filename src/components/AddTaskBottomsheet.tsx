@@ -84,10 +84,11 @@ export function AddTaskBottomsheet() {
   }, [editingTask, isAddTaskOpen])
 
   const handleSave = async () => {
-    if (!title.trim()) return
+    const trimmedTitle = title.trim().slice(0, 200)
+    if (!trimmedTitle) return
     const payload = {
-      title: title.trim(),
-      description: description.trim() || null,
+      title: trimmedTitle,
+      description: description.trim().slice(0, 2000) || null,
       date: date || null,
       time: time || null,
       is_done: editingTask?.is_done ?? false,
@@ -158,6 +159,7 @@ export function AddTaskBottomsheet() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t('tasks.new_task')}
+              maxLength={200}
               style={{ width: '100%', outline: 'none', background: 'transparent', fontSize: 20, fontWeight: 400, color: 'var(--color-text)', lineHeight: 1.3, border: 'none' }}
             />
           </div>
@@ -350,6 +352,7 @@ export function AddTaskBottomsheet() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={t('tasks.add_description')}
                   rows={2}
+                  maxLength={2000}
                   style={{ flex: 1, outline: 'none', background: 'transparent', resize: 'none', fontSize: 14, color: 'var(--color-text-secondary)', lineHeight: 1.5, border: 'none' }}
                 />
               </div>

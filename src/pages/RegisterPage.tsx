@@ -48,24 +48,29 @@ export function RegisterPage() {
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setErrors({})
     setLoading(true)
-    const { data, error: err } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { display_name: name } },
-    })
-    if (err) {
-      if (err.message.toLowerCase().includes('rate limit')) {
-        setErrors({ general: 'Слишком много попыток. Подожди немного.' })
-      } else if (err.message.toLowerCase().includes('already registered') || err.message.toLowerCase().includes('already been registered')) {
-        setErrors({ email: 'Этот email уже зарегистрирован' })
-      } else {
-        setErrors({ general: err.message })
+    try {
+      const { data, error: err } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: { data: { display_name: name.trim() } },
+      })
+      if (err) {
+        const msg = err.message.toLowerCase()
+        if (msg.includes('rate limit')) {
+          setErrors({ general: 'Слишком много попыток. Подожди немного.' })
+        } else if (msg.includes('already registered') || msg.includes('already been registered')) {
+          setErrors({ email: 'Этот email уже зарегистрирован' })
+        } else {
+          setErrors({ general: t('auth.error_general') })
+        }
+      } else if (data.user) {
+        await createDefaultSettings(data.user.id)
+        identifyUser(data.user.id)
+        track('user_signed_up')
+        if (!data.session) setNeedsConfirmation(true)
       }
-    } else if (data.user) {
-      await createDefaultSettings(data.user.id)
-      identifyUser(data.user.id, { email: data.user.email, name })
-      track('user_signed_up')
-      if (!data.session) setNeedsConfirmation(true)
+    } catch {
+      setErrors({ general: t('auth.error_network') })
     }
     setLoading(false)
   }

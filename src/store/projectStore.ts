@@ -12,40 +12,71 @@ interface ProjectStore {
   deleteProject: (id: string) => Promise<void>
 }
 
-export const useProjectStore = create<ProjectStore>((set) => ({
+export const useProjectStore = create<ProjectStore>((set, get) => ({
   projects: [],
   loading: false,
 
   fetchProjects: async () => {
     set({ loading: true })
-    const { data } = await supabase.from('projects').select('*').order('created_at', { ascending: false })
-    if (data) set({ projects: data as Project[] })
-    set({ loading: false })
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      if (data) set({ projects: data as Project[] })
+    } catch {
+      // Silently fail — UI shows empty state
+    } finally {
+      set({ loading: false })
+    }
   },
 
   addProject: async (project) => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    const { data } = await supabase
-      .from('projects')
-      .insert({ ...project, user_id: user.id })
-      .select()
-      .single()
-    if (data) {
-      set((s) => ({ projects: [data as Project, ...s.projects] }))
-      track('project_created', { has_description: !!project.description })
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data, error } = await supabase
+        .from('projects')
+        .insert({ ...project, user_id: user.id })
+        .select()
+        .single()
+      if (error) throw error
+      if (data) {
+        set((s) => ({ projects: [data as Project, ...s.projects] }))
+        track('project_created', { has_description: !!project.description })
+      }
+    } catch {
+      // Silently fail
     }
   },
 
   updateProject: async (id, updates) => {
-    const { data } = await supabase.from('projects').update(updates).eq('id', id).select().single()
-    if (data) {
-      set((s) => ({ projects: s.projects.map((p) => (p.id === id ? (data as Project) : p)) }))
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
+      if (error) throw error
+      if (data) {
+        set((s) => ({ projects: s.projects.map((p) => (p.id === id ? (data as Project) : p)) }))
+      }
+    } catch {
+      // Silently fail
     }
   },
 
   deleteProject: async (id) => {
-    await supabase.from('projects').delete().eq('id', id)
+    // Optimistic update
     set((s) => ({ projects: s.projects.filter((p) => p.id !== id) }))
+    try {
+      const { error } = await supabase.from('projects').delete().eq('id', id)
+      if (error) throw error
+    } catch {
+      // Re-fetch to restore correct state on error
+      get().fetchProjects()
+    }
   },
 }))

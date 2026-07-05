@@ -34,18 +34,20 @@ export function AddProjectBottomsheet() {
   }, [editingProject, isAddProjectOpen])
 
   const handleSave = async () => {
-    if (!name.trim()) return
+    const trimmedName = name.trim().slice(0, 100)
+    if (!trimmedName) return
+    const trimmedDesc = description.trim().slice(0, 2000) || null
     if (editingProject) {
       await updateProject(editingProject.id, {
-        name: name.trim(),
+        name: trimmedName,
         color,
-        description: description.trim() || null,
+        description: trimmedDesc,
       })
     } else {
       await addProject({
-        name: name.trim(),
+        name: trimmedName,
         color,
-        description: description.trim() || null,
+        description: trimmedDesc,
       })
     }
     closeAddProject()
@@ -66,6 +68,7 @@ export function AddProjectBottomsheet() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t('projects.name')}
+            maxLength={100}
             className="flex-1 text-[16px] outline-none bg-transparent py-2"
             style={{ color: 'var(--color-text)', borderBottom: '0.5px solid var(--color-border)' }}
           />
@@ -92,6 +95,7 @@ export function AddProjectBottomsheet() {
           onChange={(e) => setDescription(e.target.value)}
           placeholder={t('projects.add_description')}
           rows={2}
+          maxLength={2000}
           className="w-full text-[13px] outline-none bg-transparent resize-none py-2"
           style={{
             color: 'var(--color-text)',

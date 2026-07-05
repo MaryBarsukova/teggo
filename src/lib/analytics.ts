@@ -13,6 +13,6 @@ export function track(event: string, props?: Record<string, unknown>) {
   posthog.capture(event, props)
 }
 
-export function identifyUser(userId: string, traits?: Record<string, unknown>) {
-  posthog.identify(userId, traits)
+export function identifyUser(userId: string) {
+  posthog.identify(userId)
 }

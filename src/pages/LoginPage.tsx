@@ -19,18 +19,23 @@ export function LoginPage() {
     setPasswordError('')
     setGeneralError('')
     setLoading(true)
-    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password })
-    if (err) {
-      if (err.message.toLowerCase().includes('email not confirmed')) {
-        setEmailError('Подтвердите email — проверьте почту.')
-      } else if (err.message.toLowerCase().includes('invalid login credentials') || err.message.toLowerCase().includes('invalid credentials')) {
-        setPasswordError('Неверный email или пароль.')
-      } else {
-        setGeneralError(err.message)
+    try {
+      const { data, error: err } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+      if (err) {
+        const msg = err.message.toLowerCase()
+        if (msg.includes('email not confirmed')) {
+          setEmailError('Подтвердите email — проверьте почту.')
+        } else if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
+          setPasswordError('Неверный email или пароль.')
+        } else {
+          setGeneralError(t('auth.error_general'))
+        }
+      } else if (data.user) {
+        identifyUser(data.user.id)
+        track('user_signed_in')
       }
-    } else if (data.user) {
-      identifyUser(data.user.id, { email: data.user.email })
-      track('user_signed_in')
+    } catch {
+      setGeneralError(t('auth.error_network'))
     }
     setLoading(false)
   }
