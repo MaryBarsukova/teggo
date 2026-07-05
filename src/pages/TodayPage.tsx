@@ -28,6 +28,8 @@ function StreakSquares({ heatmapData }: { heatmapData: Record<string, number> })
     const key = d.toISOString().split('T')[0]
     days.push({ key, count: heatmapData[key] ?? 0 })
   }
+  // Guarantee exactly 7 entries regardless of any external data
+  const displayDays = days.slice(-7)
   const getOpacity = (count: number) => {
     if (count === 0) return 0.2
     if (count === 1) return 0.4
@@ -36,8 +38,8 @@ function StreakSquares({ heatmapData }: { heatmapData: Record<string, number> })
     return 1.0
   }
   return (
-    <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-      {days.map(({ key, count }) => (
+    <div style={{ display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'nowrap', overflow: 'hidden' }}>
+      {displayDays.map(({ key, count }) => (
         <div
           key={key}
           style={{
@@ -128,11 +130,9 @@ export function TodayPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <Zap size={12} style={{ color: 'rgba(255,255,255,0.85)', flexShrink: 0 }} />
             <span style={{
-              fontSize: 10,
+              fontSize: 13,
               color: 'rgba(255,255,255,0.85)',
               fontWeight: 500,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
             }}>
               {t('today.focus_mode')}
             </span>

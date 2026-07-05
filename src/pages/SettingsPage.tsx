@@ -108,7 +108,7 @@ export function SettingsPage() {
         <span style={{ fontSize: 11, color: '#AAAAAA', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 16px', marginBottom: 0, display: 'block', paddingBottom: 8 }}>
           {t('settings.organization')}
         </span>
-        <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setTagsOpen(true)}>
+        <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', display: 'block', overflow: 'visible', textAlign: 'left' }} onClick={() => setTagsOpen(true)}>
           <SettingsRow
             label={t('settings.tags')}
             sublabel={tags.length > 0 ? `${tags.length}` : undefined}
@@ -121,7 +121,7 @@ export function SettingsPage() {
             }
           />
         </button>
-        <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }}>
+        <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', display: 'block', overflow: 'visible', textAlign: 'left' }}>
           <SettingsRow
             label={t('settings.projects_manage')}
             sublabel={t('settings.projects_manage_sub')}
@@ -332,6 +332,7 @@ function SettingsRow({ label, sublabel, right, isFirst, leftIcon }: SettingsRowP
       backgroundColor: 'var(--color-surface)',
       borderTop: isFirst ? '0.5px solid var(--color-border)' : 'none',
       borderBottom: '0.5px solid var(--color-border)',
+      overflow: 'visible',
     }}>
       {leftIcon && <div style={{ flexShrink: 0, marginRight: 12 }}>{leftIcon}</div>}
       <div style={{ flex: 1, minWidth: 0 }}>

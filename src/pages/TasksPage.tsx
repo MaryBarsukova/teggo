@@ -129,10 +129,12 @@ export function TasksPage() {
             gap: 6,
             paddingLeft: 16,
             paddingRight: 16,
+            paddingTop: 4,
             paddingBottom: 8,
             overflowX: 'auto',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
           } as React.CSSProperties}>
             <button
               onClick={() => setActiveTagId(null)}
