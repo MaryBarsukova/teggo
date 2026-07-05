@@ -42,23 +42,30 @@ export function ProjectsPage() {
   }
 
   const handleClick = (id: string) => {
-    if (!didLongPress.current) {
-      navigate(`/projects/${id}`)
-    }
+    if (!didLongPress.current) navigate(`/projects/${id}`)
   }
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
-      {/* Header */}
-      <div className="px-5 pt-12 pb-5" style={{ backgroundColor: 'var(--color-primary)' }}>
-        <h1 style={{ fontSize: 32, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>{t('projects.title')}</h1>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
+
+      {/* ── HEADER ── */}
+      <div style={{
+        backgroundColor: 'var(--color-primary)',
+        paddingTop: 52,
+        paddingBottom: 16,
+        paddingLeft: 16,
+        paddingRight: 16,
+      }}>
+        <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>
+          {t('projects.title')}
+        </h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
           {t('projects.active', { count: activeProjects.length })}
         </p>
       </div>
 
-      {/* Project list */}
-      <div className="flex-1 px-4 py-4 pb-24">
+      {/* ── PROJECT LIST ── */}
+      <div style={{ flex: 1, padding: '16px 16px 96px' }}>
         {projects.length === 0 ? (
           <EmptyState icon={<FolderOpen size={40} />} text={t('projects.empty')} />
         ) : (
@@ -71,52 +78,64 @@ export function ProjectsPage() {
             return (
               <div
                 key={project.id}
-                className="mb-3 p-4 rounded-[var(--radius-md)] active:opacity-80 cursor-pointer"
-                style={{
-                  backgroundColor: 'var(--color-surface)',
-                  border: '0.5px solid var(--color-border)',
-                }}
                 onTouchStart={() => handlePressStart(project.id)}
                 onTouchEnd={() => { handlePressEnd(); handleClick(project.id) }}
                 onMouseDown={() => handlePressStart(project.id)}
                 onMouseUp={() => { handlePressEnd(); handleClick(project.id) }}
                 onMouseLeave={handlePressEnd}
+                style={{
+                  backgroundColor: 'var(--color-surface)',
+                  border: '0.5px solid var(--color-border)',
+                  borderRadius: 14,
+                  padding: 14,
+                  marginBottom: 10,
+                  cursor: 'pointer',
+                }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: project.color }} />
-                    <p className="text-[14px]" style={{ fontWeight: 500, color: 'var(--color-text)' }}>{project.name}</p>
+                {/* Project name + task count */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: 9999, backgroundColor: project.color, flexShrink: 0 }} />
+                    <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-text)' }}>{project.name}</p>
                   </div>
-                  <p className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>
+                  <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                     {t('projects.tasks_count', { count: totalCount })}
                   </p>
                 </div>
 
-                <div className="h-1 rounded-full mb-2" style={{ backgroundColor: 'var(--color-bg)' }}>
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{ width: `${percent}%`, backgroundColor: project.color }}
-                  />
+                {/* Progress bar */}
+                <div style={{ height: 4, borderRadius: 9999, backgroundColor: 'var(--color-bg)', overflow: 'hidden', marginBottom: 6 }}>
+                  <div style={{ height: '100%', borderRadius: 9999, width: `${percent}%`, backgroundColor: project.color, transition: 'width 0.3s ease' }} />
                 </div>
 
-                <div className="flex justify-between">
-                  <p className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
+                {/* Progress labels */}
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
                     {t('projects.done_of', { done: doneCount, total: totalCount })}
                   </p>
-                  <p className="text-[11px]" style={{ color: project.color }}>{percent}%</p>
+                  <p style={{ fontSize: 11, color: project.color, fontWeight: 500 }}>{percent}%</p>
                 </div>
               </div>
             )
           })
         )}
 
-        {/* Add new project button */}
+        {/* Add project button */}
         <button
           onClick={() => openAddProject()}
-          className="w-full py-4 rounded-[var(--radius-md)] flex items-center justify-center gap-2 text-[14px]"
           style={{
-            border: '1px dashed var(--color-border)',
+            width: '100%',
+            padding: '14px 16px',
+            borderRadius: 14,
+            border: '1px dashed var(--color-border-strong)',
+            backgroundColor: 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            fontSize: 14,
             color: 'var(--color-text-muted)',
+            cursor: 'pointer',
           }}
         >
           <Plus size={16} />
@@ -126,29 +145,31 @@ export function ProjectsPage() {
 
       {/* Context menu */}
       {menuProjectId && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => setMenuProjectId(null)}>
-          <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }} />
-          <div
-            className="relative w-full rounded-t-[20px] overflow-hidden"
-            style={{
-              backgroundColor: 'var(--color-surface)',
-              paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
-              maxWidth: 430,
-            }}
-          >
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-10 h-1 rounded-full" style={{ backgroundColor: 'var(--color-border)' }} />
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+          onClick={() => setMenuProjectId(null)}
+        >
+          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' }} />
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: 430,
+            backgroundColor: 'var(--color-surface)',
+            borderRadius: '20px 20px 0 0',
+            paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
+            overflow: 'hidden',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
+              <div style={{ width: 32, height: 3, borderRadius: 2, backgroundColor: 'var(--color-border-strong)' }} />
             </div>
             <button
-              className="w-full text-left px-4 py-3 text-[16px]"
-              style={{ color: 'var(--color-text)' }}
-              onClick={() => { setMenuProjectId(null); openAddProject(menuProjectId) }}
+              style={{ width: '100%', textAlign: 'left', padding: '14px 20px', fontSize: 15, color: 'var(--color-text)', background: 'none', borderTop: '0.5px solid var(--color-border)', borderLeft: 'none', borderRight: 'none', borderBottom: 'none', cursor: 'pointer' }}
+              onClick={() => { setMenuProjectId(null); openAddProject(menuProjectId ?? undefined) }}
             >
               {t('projects.edit_project')}
             </button>
             <button
-              className="w-full text-left px-4 py-3 text-[16px]"
-              style={{ color: 'var(--color-overdue)' }}
+              style={{ width: '100%', textAlign: 'left', padding: '14px 20px', fontSize: 15, color: 'var(--color-overdue)', background: 'none', borderTop: '0.5px solid var(--color-border)', borderLeft: 'none', borderRight: 'none', borderBottom: 'none', cursor: 'pointer' }}
               onClick={() => { setMenuProjectId(null); setConfirmDeleteId(menuProjectId) }}
             >
               {t('projects.delete_project')}
@@ -159,15 +180,21 @@ export function ProjectsPage() {
 
       {/* Delete confirm */}
       {confirmDeleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
-          <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => setConfirmDeleteId(null)} />
-          <div className="relative w-full rounded-[20px] p-6" style={{ backgroundColor: 'var(--color-surface)', maxWidth: 390 }}>
-            <p className="text-[16px] mb-5" style={{ color: 'var(--color-text)' }}>{t('common.confirm_delete')}</p>
-            <div className="flex gap-3">
-              <button className="flex-1 py-3 rounded-full text-[14px]" style={{ color: 'var(--color-text-muted)', border: '0.5px solid var(--color-border)' }} onClick={() => setConfirmDeleteId(null)}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px' }}>
+          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => setConfirmDeleteId(null)} />
+          <div style={{ position: 'relative', width: '100%', maxWidth: 360, backgroundColor: 'var(--color-surface)', borderRadius: 20, padding: 24 }}>
+            <p style={{ fontSize: 16, color: 'var(--color-text)', marginBottom: 20 }}>{t('common.confirm_delete')}</p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                style={{ flex: 1, padding: '12px 0', borderRadius: 9999, fontSize: 14, color: 'var(--color-text-muted)', border: '0.5px solid var(--color-border)', background: 'none', cursor: 'pointer' }}
+                onClick={() => setConfirmDeleteId(null)}
+              >
                 {t('common.confirm_delete_no')}
               </button>
-              <button className="flex-1 py-3 rounded-full text-[14px] text-white" style={{ backgroundColor: 'var(--color-overdue)' }} onClick={() => { deleteProject(confirmDeleteId); setConfirmDeleteId(null) }}>
+              <button
+                style={{ flex: 1, padding: '12px 0', borderRadius: 9999, fontSize: 14, color: 'white', backgroundColor: 'var(--color-overdue)', border: 'none', cursor: 'pointer' }}
+                onClick={() => { deleteProject(confirmDeleteId); setConfirmDeleteId(null) }}
+              >
                 {t('common.confirm_delete_yes')}
               </button>
             </div>

@@ -16,17 +16,6 @@ interface User {
   user_metadata?: { display_name?: string }
 }
 
-const SECTION_LABEL_STYLE: React.CSSProperties = {
-  fontSize: 11,
-  color: '#AAAAAA',
-  fontWeight: 500,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-  padding: '0 16px',
-  marginBottom: 8,
-  display: 'block',
-}
-
 const CREATE_TAG_COLORS = ['#F0956E', '#7A9E6C', '#378ADD', '#A96CC4', '#E2A030', '#D4537E']
 
 export function SettingsPage() {
@@ -93,90 +82,64 @@ export function SettingsPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingBottom: 96, backgroundColor: 'var(--color-bg)' }}>
-      {/* Header */}
+
+      {/* HEADER */}
       <div style={{ backgroundColor: 'var(--color-primary)', paddingTop: 52, paddingBottom: 16, paddingLeft: 16, paddingRight: 16 }}>
-        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 4 }}>{t('settings.personalization')}</p>
-        <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1 }}>{t('settings.title')}</h1>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 2 }}>{t('settings.personalization')}</p>
+        <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500 }}>{t('settings.title')}</h1>
       </div>
 
-      {/* Profile row */}
-      <div style={{ backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)', borderTop: '0.5px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', marginTop: 16 }}>
-        <div style={{ width: 40, height: 40, borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-primary)', color: 'white', fontSize: 14, fontWeight: 500, flexShrink: 0 }}>
+      {/* PROFILE */}
+      <div style={{ backgroundColor: 'var(--color-surface)', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '0.5px solid var(--color-border)' }}>
+        <div style={{ width: 40, height: 40, borderRadius: 9999, backgroundColor: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 14, fontWeight: 500, flexShrink: 0 }}>
           {initials}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)' }}>{displayName}</p>
           <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{user?.email}</p>
         </div>
-        <button style={{ fontSize: 12, color: '#E24B4A', background: 'none', border: 'none', cursor: 'pointer' }} onClick={handleSignOut}>
+        <button onClick={handleSignOut} style={{ fontSize: 13, color: 'var(--color-overdue)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
           {t('auth.sign_out')}
         </button>
       </div>
 
-      {/* ОРГАНИЗАЦИЯ section */}
+      {/* SECTION: ОРГАНИЗАЦИЯ */}
       <div style={{ marginTop: 24 }}>
-        <span style={SECTION_LABEL_STYLE}>{t('settings.organization')}</span>
-        <button style={{ width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => setTagsOpen(true)}>
-          <SettingsRow
-            label={t('settings.tags')}
-            sublabel={tags.length > 0 ? `${tags.length}` : undefined}
-            right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
-            isFirst
-          />
+        <span style={{ fontSize: 11, color: '#AAAAAA', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 16px', marginBottom: 0, display: 'block', paddingBottom: 8 }}>
+          {t('settings.organization')}
+        </span>
+        <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setTagsOpen(true)}>
+          <SettingsRow label={t('settings.tags')} sublabel={tags.length > 0 ? `${tags.length}` : undefined} right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />} isFirst />
         </button>
-        <button style={{ width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => alert('Projects page')}>
-          <SettingsRow
-            label={t('settings.projects_manage')}
-            sublabel={t('settings.projects_manage_sub')}
-            right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
-          />
+        <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }}>
+          <SettingsRow label={t('settings.projects_manage')} sublabel={t('settings.projects_manage_sub')} right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />} />
         </button>
       </div>
 
-      {/* ЗАДАЧИ section */}
+      {/* SECTION: ЗАДАЧИ */}
       <div style={{ marginTop: 24 }}>
-        <span style={SECTION_LABEL_STYLE}>{t('settings.tasks_section')}</span>
-        <SettingsRow
-          label={t('settings.show_description')}
-          sublabel={t('settings.show_description_sub')}
-          right={<Toggle on={settings?.show_description ?? true} onChange={(v) => updateSettings({ show_description: v })} />}
-          isFirst
-        />
-        <SettingsRow
-          label={t('settings.focus_mode')}
-          sublabel={t('settings.focus_mode_sub')}
-          right={<Toggle on={settings?.focus_mode ?? true} onChange={(v) => updateSettings({ focus_mode: v })} />}
-        />
-        <SettingsRow
-          label={t('settings.streak')}
-          sublabel={t('settings.streak_sub')}
-          right={<Toggle on={settings?.show_streak ?? true} onChange={(v) => updateSettings({ show_streak: v })} />}
-        />
+        <span style={{ fontSize: 11, color: '#AAAAAA', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 16px 8px', display: 'block' }}>
+          {t('settings.tasks_section')}
+        </span>
+        <SettingsRow label={t('settings.show_description')} sublabel={t('settings.show_description_sub')} right={<Toggle on={settings?.show_description ?? true} onChange={(v) => updateSettings({ show_description: v })} />} isFirst />
+        <SettingsRow label={t('settings.focus_mode')} sublabel={t('settings.focus_mode_sub')} right={<Toggle on={settings?.focus_mode ?? true} onChange={(v) => updateSettings({ focus_mode: v })} />} />
+        <SettingsRow label={t('settings.streak')} sublabel={t('settings.streak_sub')} right={<Toggle on={settings?.show_streak ?? true} onChange={(v) => updateSettings({ show_streak: v })} />} />
       </div>
 
-      {/* ПРИЛОЖЕНИЕ section */}
+      {/* SECTION: ПРИЛОЖЕНИЕ */}
       <div style={{ marginTop: 24 }}>
-        <span style={SECTION_LABEL_STYLE}>{t('settings.app_section')}</span>
-        <button style={{ width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => alert('Notifications coming soon')}>
-          <SettingsRow
-            label={t('settings.notifications_nav')}
-            right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
-            isFirst
-          />
+        <span style={{ fontSize: 11, color: '#AAAAAA', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 16px 8px', display: 'block' }}>
+          {t('settings.app_section')}
+        </span>
+        <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setLangPickerOpen(true)}>
+          <SettingsRow label={t('settings.theme')} sublabel={languageLabel()} right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />} isFirst />
         </button>
-        <button style={{ width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => setLangPickerOpen(true)}>
-          <SettingsRow
-            label={t('settings.theme')}
-            sublabel={languageLabel()}
-            right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />}
-          />
+        <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => alert('Export coming soon')}>
+          <SettingsRow label={t('settings.export')} right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />} />
         </button>
-        <button style={{ width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => alert('Export coming soon')}>
-          <SettingsRow label={t('settings.export')} right={<ChevronRight size={16} style={{ color: 'var(--color-text-muted)' }} />} />
-        </button>
-        <button style={{ width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => setConfirmDeleteOpen(true)}>
+        <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setConfirmDeleteOpen(true)}>
           <div style={{ padding: '14px 16px', backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
-            <p style={{ fontSize: 15, color: '#E24B4A' }}>{t('settings.delete_account')}</p>
+            <p style={{ fontSize: 15, color: 'var(--color-overdue)', textAlign: 'left' }}>{t('settings.delete_account')}</p>
           </div>
         </button>
       </div>
@@ -209,9 +172,7 @@ export function SettingsPage() {
                     key={tag.id}
                     style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '0.5px solid var(--color-border)' }}
                   >
-                    <div
-                      style={{ width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: `${tag.color}20` }}
-                    >
+                    <div style={{ width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: `${tag.color}20` }}>
                       <TagIcon icon={tag.icon ?? 'tag'} size={17} color={tag.color} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -237,8 +198,6 @@ export function SettingsPage() {
           <p style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text)', padding: '12px 0 20px' }}>
             Новый тег
           </p>
-
-          {/* Name input */}
           <div style={{ marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
               <p style={{ fontSize: 11, color: '#AAAAAA', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Название</p>
@@ -250,23 +209,10 @@ export function SettingsPage() {
               onChange={(e) => setNewTagName(e.target.value.slice(0, 12))}
               onKeyDown={(e) => e.key === 'Enter' && handleCreateTag()}
               placeholder="Название тега"
-              style={{
-                width: '100%',
-                outline: 'none',
-                background: 'transparent',
-                fontSize: 16,
-                color: 'var(--color-text)',
-                borderTop: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
-                borderBottom: '1px solid var(--color-border-strong)',
-                paddingBottom: 8,
-              }}
+              style={{ width: '100%', outline: 'none', background: 'transparent', fontSize: 16, color: 'var(--color-text)', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderBottom: '1px solid var(--color-border-strong)', paddingBottom: 8 }}
               maxLength={12}
             />
           </div>
-
-          {/* Color picker */}
           <div style={{ marginBottom: 24 }}>
             <p style={{ fontSize: 11, color: '#AAAAAA', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>Цвет</p>
             <div style={{ display: 'flex', gap: 12 }}>
@@ -274,38 +220,14 @@ export function SettingsPage() {
                 <button
                   key={c}
                   onClick={() => setNewTagColor(c)}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 9999,
-                    flexShrink: 0,
-                    backgroundColor: c,
-                    outline: newTagColor === c ? `3px solid ${c}` : 'none',
-                    outlineOffset: 2,
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
+                  style={{ width: 32, height: 32, borderRadius: 9999, flexShrink: 0, backgroundColor: c, outline: newTagColor === c ? `3px solid ${c}` : 'none', outlineOffset: 2, border: 'none', cursor: 'pointer' }}
                 />
               ))}
             </div>
           </div>
-
-          {/* Save button */}
           <button
             onClick={handleCreateTag}
-            style={{
-              width: '100%',
-              padding: '14px 0',
-              borderRadius: 14,
-              fontSize: 15,
-              backgroundColor: '#F0956E',
-              color: '#FFFFFF',
-              fontWeight: 500,
-              opacity: newTagName.trim() && !savingTag ? 1 : 0.4,
-              pointerEvents: newTagName.trim() && !savingTag ? 'auto' : 'none',
-              border: 'none',
-              cursor: 'pointer',
-            }}
+            style={{ width: '100%', padding: '14px 0', borderRadius: 14, fontSize: 15, backgroundColor: '#F0956E', color: '#FFFFFF', fontWeight: 500, opacity: newTagName.trim() && !savingTag ? 1 : 0.4, pointerEvents: newTagName.trim() && !savingTag ? 'auto' : 'none', border: 'none', cursor: 'pointer' }}
           >
             {t('common.save')}
           </button>
@@ -320,20 +242,7 @@ export function SettingsPage() {
             <button
               key={val}
               onClick={() => { updateSettings({ language: val }); setLangPickerOpen(false) }}
-              style={{
-                width: '100%',
-                textAlign: 'left',
-                padding: '14px 0',
-                fontSize: 15,
-                color: settings?.language === val ? 'var(--color-primary)' : 'var(--color-text)',
-                fontWeight: settings?.language === val ? 500 : 400,
-                background: 'none',
-                borderTop: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
-                borderBottom: '0.5px solid var(--color-border)',
-                cursor: 'pointer',
-              }}
+              style={{ width: '100%', textAlign: 'left', padding: '14px 0', fontSize: 15, color: settings?.language === val ? 'var(--color-primary)' : 'var(--color-text)', fontWeight: settings?.language === val ? 500 : 400, background: 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderBottom: '0.5px solid var(--color-border)', cursor: 'pointer' }}
             >
               {label}
             </button>
@@ -357,7 +266,7 @@ export function SettingsPage() {
               <button style={{ flex: 1, padding: '12px 0', borderRadius: 9999, fontSize: 14, color: 'var(--color-text-muted)', border: '0.5px solid var(--color-border)', background: 'none', cursor: 'pointer' }} onClick={() => setConfirmDeleteOpen(false)}>
                 {t('common.confirm_delete_no')}
               </button>
-              <button style={{ flex: 1, padding: '12px 0', borderRadius: 9999, fontSize: 14, color: 'white', backgroundColor: '#E24B4A', border: 'none', cursor: 'pointer' }} onClick={handleDeleteAccount}>
+              <button style={{ flex: 1, padding: '12px 0', borderRadius: 9999, fontSize: 14, color: 'white', backgroundColor: 'var(--color-overdue)', border: 'none', cursor: 'pointer' }} onClick={handleDeleteAccount}>
                 {t('common.confirm_delete_yes')}
               </button>
             </div>
@@ -377,22 +286,20 @@ interface SettingsRowProps {
 
 function SettingsRow({ label, sublabel, right, isFirst }: SettingsRowProps) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '14px 16px',
-        backgroundColor: 'var(--color-surface)',
-        borderTop: isFirst ? '0.5px solid var(--color-border)' : 'none',
-        borderBottom: '0.5px solid var(--color-border)',
-      }}
-    >
-      <div>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '14px 16px',
+      backgroundColor: 'var(--color-surface)',
+      borderTop: isFirst ? '0.5px solid var(--color-border)' : 'none',
+      borderBottom: '0.5px solid var(--color-border)',
+    }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 15, color: 'var(--color-text)' }}>{label}</p>
-        {sublabel && <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{sublabel}</p>}
+        {sublabel && <p style={{ fontSize: 12, color: '#AAAAAA', marginTop: 1 }}>{sublabel}</p>}
       </div>
-      {right}
+      <div style={{ flexShrink: 0, marginLeft: 12 }}>{right}</div>
     </div>
   )
 }

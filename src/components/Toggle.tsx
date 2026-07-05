@@ -1,5 +1,3 @@
-// React auto-import
-
 interface ToggleProps {
   on: boolean
   onChange: (on: boolean) => void
@@ -11,16 +9,29 @@ export function Toggle({ on, onChange, variant = 'default' }: ToggleProps) {
     return (
       <button
         onClick={() => onChange(!on)}
-        className="relative flex items-center w-[44px] h-[24px] rounded-full transition-colors duration-200"
         style={{
-          backgroundColor: on ? 'rgba(255,255,255,0.90)' : 'rgba(255,255,255,0.15)',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          width: 44,
+          height: 24,
+          borderRadius: 9999,
+          backgroundColor: on ? 'rgba(255,255,255,0.90)' : 'rgba(255,255,255,0.25)',
+          border: 'none',
+          cursor: 'pointer',
+          flexShrink: 0,
+          transition: 'background-color 0.2s ease',
         }}
       >
         <span
-          className="absolute w-4 h-4 rounded-full transition-transform duration-200"
           style={{
-            backgroundColor: on ? 'var(--color-primary)' : 'white',
-            transform: on ? 'translateX(24px)' : 'translateX(4px)',
+            position: 'absolute',
+            width: 18,
+            height: 18,
+            borderRadius: 9999,
+            backgroundColor: on ? 'var(--color-primary)' : 'rgba(255,255,255,0.8)',
+            transform: on ? 'translateX(22px)' : 'translateX(3px)',
+            transition: 'transform 0.2s ease',
           }}
         />
       </button>
@@ -30,15 +41,29 @@ export function Toggle({ on, onChange, variant = 'default' }: ToggleProps) {
   return (
     <button
       onClick={() => onChange(!on)}
-      className="relative flex items-center w-[48px] h-[26px] rounded-full transition-colors duration-200"
       style={{
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        width: 44,
+        height: 24,
+        borderRadius: 9999,
         backgroundColor: on ? 'var(--color-primary)' : '#DDDDDD',
+        border: 'none',
+        cursor: 'pointer',
+        flexShrink: 0,
+        transition: 'background-color 0.2s ease',
       }}
     >
       <span
-        className="absolute w-[18px] h-[18px] rounded-full bg-white transition-transform duration-200"
         style={{
-          transform: on ? 'translateX(26px)' : 'translateX(4px)',
+          position: 'absolute',
+          width: 18,
+          height: 18,
+          borderRadius: 9999,
+          backgroundColor: 'white',
+          transform: on ? 'translateX(22px)' : 'translateX(3px)',
+          transition: 'transform 0.2s ease',
         }}
       />
     </button>
