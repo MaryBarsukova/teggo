@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronRight, Trash2, Plus } from 'lucide-react'
+import { ChevronRight, Trash2, Plus, Moon, Download, Folder } from 'lucide-react'
 import { Toggle } from '../components/Toggle'
 import { Bottomsheet } from '../components/Bottomsheet'
 import { useSettingsStore } from '../store/settingsStore'
@@ -109,10 +109,29 @@ export function SettingsPage() {
           {t('settings.organization')}
         </span>
         <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setTagsOpen(true)}>
-          <SettingsRow label={t('settings.tags')} sublabel={tags.length > 0 ? `${tags.length}` : undefined} right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />} isFirst />
+          <SettingsRow
+            label={t('settings.tags')}
+            sublabel={tags.length > 0 ? `${tags.length}` : undefined}
+            right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />}
+            isFirst
+            leftIcon={
+              <div style={{ width: 30, height: 30, borderRadius: 8, background: '#F0EEFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <TagIcon icon="tag" size={16} color="#534AB7" />
+              </div>
+            }
+          />
         </button>
         <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }}>
-          <SettingsRow label={t('settings.projects_manage')} sublabel={t('settings.projects_manage_sub')} right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />} />
+          <SettingsRow
+            label={t('settings.projects_manage')}
+            sublabel={t('settings.projects_manage_sub')}
+            right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />}
+            leftIcon={
+              <div style={{ width: 30, height: 30, borderRadius: 8, background: '#E3F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Folder size={16} color="#0F6E56" />
+              </div>
+            }
+          />
         </button>
       </div>
 
@@ -132,10 +151,28 @@ export function SettingsPage() {
           {t('settings.app_section')}
         </span>
         <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setLangPickerOpen(true)}>
-          <SettingsRow label={t('settings.theme')} sublabel={languageLabel()} right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />} isFirst />
+          <SettingsRow
+            label={t('settings.theme')}
+            sublabel={languageLabel()}
+            right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />}
+            isFirst
+            leftIcon={
+              <div style={{ width: 30, height: 30, borderRadius: 8, background: '#FDF6F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Moon size={16} color="#C5A898" />
+              </div>
+            }
+          />
         </button>
         <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => alert('Export coming soon')}>
-          <SettingsRow label={t('settings.export')} right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />} />
+          <SettingsRow
+            label={t('settings.export')}
+            right={<ChevronRight size={16} style={{ color: '#AAAAAA' }} />}
+            leftIcon={
+              <div style={{ width: 30, height: 30, borderRadius: 8, background: '#EAF3DE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Download size={16} color="#3B6D11" />
+              </div>
+            }
+          />
         </button>
         <button style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setConfirmDeleteOpen(true)}>
           <div style={{ padding: '14px 16px', backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
@@ -282,9 +319,10 @@ interface SettingsRowProps {
   sublabel?: string
   right?: React.ReactNode
   isFirst?: boolean
+  leftIcon?: React.ReactNode
 }
 
-function SettingsRow({ label, sublabel, right, isFirst }: SettingsRowProps) {
+function SettingsRow({ label, sublabel, right, isFirst, leftIcon }: SettingsRowProps) {
   return (
     <div style={{
       display: 'flex',
@@ -295,6 +333,7 @@ function SettingsRow({ label, sublabel, right, isFirst }: SettingsRowProps) {
       borderTop: isFirst ? '0.5px solid var(--color-border)' : 'none',
       borderBottom: '0.5px solid var(--color-border)',
     }}>
+      {leftIcon && <div style={{ flexShrink: 0, marginRight: 12 }}>{leftIcon}</div>}
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 15, color: 'var(--color-text)' }}>{label}</p>
         {sublabel && <p style={{ fontSize: 12, color: '#AAAAAA', marginTop: 1 }}>{sublabel}</p>}

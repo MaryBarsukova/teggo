@@ -22,7 +22,7 @@ function formatHeaderDate(): string {
 
 function StreakSquares({ heatmapData }: { heatmapData: Record<string, number> }) {
   const days: { key: string; count: number }[] = []
-  for (let i = 13; i >= 0; i--) {
+  for (let i = 6; i >= 0; i--) {
     const d = new Date()
     d.setDate(d.getDate() - i)
     const key = d.toISOString().split('T')[0]
@@ -43,7 +43,7 @@ function StreakSquares({ heatmapData }: { heatmapData: Record<string, number> })
           style={{
             width: 10,
             height: 10,
-            borderRadius: 3,
+            borderRadius: 2,
             backgroundColor: `rgba(255,255,255,${getOpacity(count)})`,
             flexShrink: 0,
           }}
@@ -218,7 +218,7 @@ export function TodayPage() {
 
         {/* Empty state */}
         {todayTasks.length === 0 && (
-          <EmptyState icon={<CheckSquare size={40} />} text={t('tasks.empty_progress')} />
+          <EmptyState icon={<CheckSquare size={40} color="#E8775A" />} text={t('tasks.empty_progress')} />
         )}
       </div>
 

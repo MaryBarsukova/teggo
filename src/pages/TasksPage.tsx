@@ -6,7 +6,15 @@ import { FAB } from '../components/FAB'
 import { EmptyState } from '../components/EmptyState'
 import { useTaskStore } from '../store/taskStore'
 import { useTagStore } from '../store/tagStore'
+import { TagIcon } from '../components/AddTaskBottomsheet'
 import type { Task } from '../types'
+
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r},${g},${b},${alpha})`
+}
 
 function groupByDoneAt(tasks: Task[]): { label: string; tasks: Task[] }[] {
   const today = new Date().toISOString().split('T')[0]
@@ -61,49 +69,31 @@ export function TasksPage() {
   })
 
   const doneGroups = groupByDoneAt(done)
-  const count = activeTab === 'progress' ? inProgress.length : done.length
+
+  const totalInProgress = tasks.filter((t) => !t.is_done).length
+  const totalDone = tasks.filter((t) => t.is_done).length
+  const headerSubtitle = totalInProgress > 0 || totalDone > 0
+    ? `${totalInProgress} ${t('tasks.in_progress').toLowerCase()} · ${totalDone} ${t('tasks.done').toLowerCase()}`
+    : null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
 
       {/* ── HEADER ── */}
       <div style={{ backgroundColor: 'var(--color-primary)' }}>
-        <div style={{ paddingTop: 52, paddingLeft: 16, paddingRight: 16, paddingBottom: 0 }}>
+        <div style={{ paddingTop: 52, paddingLeft: 16, paddingRight: 16, paddingBottom: 16 }}>
           <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>
             {t('tasks.title')}
           </h1>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginBottom: 12 }}>
-            {count} {activeTab === 'progress' ? t('tasks.in_progress').toLowerCase() : t('tasks.done').toLowerCase()}
-          </p>
-        </div>
-
-        {/* Tabs */}
-        <div style={{ display: 'flex', paddingLeft: 16, paddingRight: 16, gap: 24 }}>
-          {(['progress', 'done'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                fontSize: 15,
-                color: 'white',
-                fontWeight: activeTab === tab ? 500 : 400,
-                opacity: activeTab === tab ? 1 : 0.55,
-                paddingBottom: 10,
-                background: 'none',
-                borderTop: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
-                borderBottom: activeTab === tab ? '2px solid white' : '2px solid transparent',
-                cursor: 'pointer',
-              }}
-            >
-              {tab === 'progress' ? t('tasks.active_tab') : t('tasks.done_tab')}
-            </button>
-          ))}
+          {headerSubtitle && (
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
+              {headerSubtitle}
+            </p>
+          )}
         </div>
       </div>
 
-      {/* ── SEARCH + TAGS ── */}
+      {/* ── SEARCH + TAGS + TABS ── */}
       <div style={{ backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
         {/* Search */}
         <div style={{ padding: '12px 16px' }}>
@@ -132,22 +122,23 @@ export function TasksPage() {
           </div>
         </div>
 
-        {/* Tag pills */}
+        {/* Tag filter chips */}
         {tags.length > 0 && (
           <div style={{
             display: 'flex',
-            gap: 8,
+            gap: 6,
             paddingLeft: 16,
             paddingRight: 16,
-            paddingBottom: 12,
+            paddingBottom: 8,
             overflowX: 'auto',
-            msOverflowStyle: 'none',
             scrollbarWidth: 'none',
-          }}>
+            msOverflowStyle: 'none',
+          } as React.CSSProperties}>
             <button
               onClick={() => setActiveTagId(null)}
               style={{
-                fontSize: 12,
+                fontSize: 11,
+                fontWeight: 500,
                 paddingLeft: 12,
                 paddingRight: 12,
                 paddingTop: 5,
@@ -155,45 +146,74 @@ export function TasksPage() {
                 borderRadius: 9999,
                 flexShrink: 0,
                 cursor: 'pointer',
-                backgroundColor: activeTagId === null ? 'var(--color-primary)' : 'transparent',
-                color: activeTagId === null ? 'white' : '#AAAAAA',
-                border: activeTagId === null ? 'none' : '0.5px solid var(--color-border-strong)',
-                fontWeight: activeTagId === null ? 500 : 400,
+                whiteSpace: 'nowrap',
+                backgroundColor: activeTagId === null ? '#E8775A' : '#FEF0EB',
+                color: activeTagId === null ? '#fff' : '#E8775A',
+                border: 'none',
               }}
             >
               {t('tasks.all')}
             </button>
-            {tags.map((tag) => (
-              <button
-                key={tag.id}
-                onClick={() => setActiveTagId(activeTagId === tag.id ? null : tag.id)}
-                style={{
-                  fontSize: 12,
-                  paddingLeft: 12,
-                  paddingRight: 12,
-                  paddingTop: 5,
-                  paddingBottom: 5,
-                  borderRadius: 9999,
-                  flexShrink: 0,
-                  cursor: 'pointer',
-                  backgroundColor: activeTagId === tag.id ? `${tag.color}22` : 'transparent',
-                  color: activeTagId === tag.id ? tag.color : '#AAAAAA',
-                  border: `0.5px solid ${activeTagId === tag.id ? tag.color : 'var(--color-border-strong)'}`,
-                  fontWeight: activeTagId === tag.id ? 500 : 400,
-                }}
-              >
-                {tag.name}
-              </button>
-            ))}
+            {tags.map((tag) => {
+              const isActive = activeTagId === tag.id
+              return (
+                <button
+                  key={tag.id}
+                  onClick={() => setActiveTagId(activeTagId === tag.id ? null : tag.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    fontSize: 11,
+                    paddingLeft: 12,
+                    paddingRight: 12,
+                    paddingTop: 5,
+                    paddingBottom: 5,
+                    borderRadius: 9999,
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    backgroundColor: isActive ? hexToRgba(tag.color, 0.22) : hexToRgba(tag.color, 0.12),
+                    color: tag.color,
+                    border: `0.5px solid ${hexToRgba(tag.color, isActive ? 0.5 : 0.3)}`,
+                  }}
+                >
+                  {tag.icon && <TagIcon icon={tag.icon} size={10} color={tag.color} />}
+                  {tag.name}
+                </button>
+              )
+            })}
           </div>
         )}
+
+        {/* Tabs — chip style */}
+        <div style={{ display: 'flex', gap: 4, padding: '8px 16px 12px' }}>
+          {(['progress', 'done'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                fontSize: 13,
+                fontWeight: 500,
+                padding: '5px 14px',
+                borderRadius: 8,
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: activeTab === tab ? '#E8775A' : '#F0E6DF',
+                color: activeTab === tab ? '#fff' : '#B5897A',
+              }}
+            >
+              {tab === 'progress' ? t('tasks.active_tab') : t('tasks.done_tab')}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── TASK LIST ── */}
       <div style={{ flex: 1, paddingBottom: 96, paddingTop: 16 }}>
         {activeTab === 'progress' ? (
           inProgress.length === 0 ? (
-            <EmptyState icon={<ListTodo size={40} />} text={t('tasks.empty_progress')} />
+            <EmptyState icon={<ListTodo size={40} color="#E8775A" />} text={t('tasks.empty_progress')} />
           ) : (
             <div style={{ backgroundColor: 'var(--color-surface)' }}>
               {inProgress.map((task, i) => (
@@ -206,7 +226,7 @@ export function TasksPage() {
           )
         ) : (
           done.length === 0 ? (
-            <EmptyState icon={<ListTodo size={40} />} text={t('tasks.empty_done')} />
+            <EmptyState icon={<ListTodo size={40} color="#E8775A" />} text={t('tasks.empty_done')} />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
               {doneGroups.map(({ label, tasks: groupTasks }) => (

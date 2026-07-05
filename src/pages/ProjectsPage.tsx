@@ -59,15 +59,17 @@ export function ProjectsPage() {
         <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>
           {t('projects.title')}
         </h1>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
-          {t('projects.active', { count: activeProjects.length })}
-        </p>
+        {activeProjects.length > 0 && (
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
+            {t('projects.active', { count: activeProjects.length })}
+          </p>
+        )}
       </div>
 
       {/* ── PROJECT LIST ── */}
       <div style={{ flex: 1, padding: '16px 16px 96px' }}>
         {projects.length === 0 ? (
-          <EmptyState icon={<FolderOpen size={40} />} text={t('projects.empty')} />
+          <EmptyState icon={<FolderOpen size={48} color="#E8775A" />} text={t('projects.empty')} />
         ) : (
           projects.map((project) => {
             const projectTasks = tasks.filter((t) => t.project_id === project.id)
@@ -125,16 +127,17 @@ export function ProjectsPage() {
           onClick={() => openAddProject()}
           style={{
             width: '100%',
-            padding: '14px 16px',
+            padding: '14px 24px',
             borderRadius: 14,
-            border: '1px dashed var(--color-border-strong)',
-            backgroundColor: 'transparent',
+            border: 'none',
+            backgroundColor: '#FEF0EB',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 8,
-            fontSize: 14,
-            color: 'var(--color-text-muted)',
+            fontSize: 15,
+            fontWeight: 500,
+            color: '#E8775A',
             cursor: 'pointer',
           }}
         >

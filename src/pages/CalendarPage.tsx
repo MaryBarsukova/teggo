@@ -4,10 +4,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { TaskCard } from '../components/TaskCard'
 import { FAB } from '../components/FAB'
 import { useTaskStore } from '../store/taskStore'
+import { useTagStore } from '../store/tagStore'
 import { useUIStore } from '../store/uiStore'
 import type { Task } from '../types'
 
-const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
 function getDaysInMonth(year: number, month: number): (Date | null)[] {
   const firstDay = new Date(year, month, 1)
@@ -22,10 +23,11 @@ function getDaysInMonth(year: number, month: number): (Date | null)[] {
 export function CalendarPage() {
   const { t } = useTranslation()
   const { tasks, fetchTasks } = useTaskStore()
+  const { tags, fetchTags } = useTagStore()
   const { selectedCalendarDate, setSelectedCalendarDate } = useUIStore()
   const [viewDate, setViewDate] = useState(new Date())
 
-  useEffect(() => { fetchTasks() }, [])
+  useEffect(() => { fetchTasks(); fetchTags() }, [])
 
   const today = new Date().toISOString().split('T')[0]
   const year = viewDate.getFullYear()
@@ -38,8 +40,13 @@ export function CalendarPage() {
   const prevMonth = () => setViewDate(new Date(year, month - 1, 1))
   const nextMonth = () => setViewDate(new Date(year, month + 1, 1))
 
-  const tasksByDate = tasks.reduce<Record<string, number>>((acc, task) => {
-    if (task.date) acc[task.date] = (acc[task.date] ?? 0) + 1
+  const tasksByDate = tasks.reduce<Record<string, { color: string }[]>>((acc, task) => {
+    if (task.date) {
+      if (!acc[task.date]) acc[task.date] = []
+      const firstTagId = task.tag_ids?.[0]
+      const tag = firstTagId ? tags.find((tg) => tg.id === firstTagId) : null
+      acc[task.date].push({ color: tag?.color ?? '#E8775A' })
+    }
     return acc
   }, {})
 
@@ -91,7 +98,7 @@ export function CalendarPage() {
             const dateStr = day.toISOString().split('T')[0]
             const isToday = dateStr === today
             const isSelected = dateStr === selectedCalendarDate
-            const hasTasks = !!tasksByDate[dateStr]
+            const dayDots = (tasksByDate[dateStr] ?? []).slice(0, 3)
             const isCurrentMonth = day.getMonth() === month
 
             return (
@@ -116,10 +123,21 @@ export function CalendarPage() {
                 >
                   {day.getDate()}
                 </div>
-                {hasTasks && (
-                  <div
-                    style={{ width: 4, height: 4, borderRadius: 9999, marginTop: 2, backgroundColor: isToday ? 'white' : 'var(--color-primary)' }}
-                  />
+                {dayDots.length > 0 && (
+                  <div style={{ display: 'flex', marginTop: 2 }}>
+                    {dayDots.map((dot, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          width: 4,
+                          height: 4,
+                          borderRadius: '50%',
+                          margin: '0 1px',
+                          backgroundColor: (isToday || isSelected) ? '#fff' : dot.color,
+                        }}
+                      />
+                    ))}
+                  </div>
                 )}
               </button>
             )
