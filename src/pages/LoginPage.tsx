@@ -28,7 +28,7 @@ export function LoginPage() {
         } else if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
           setPasswordError('Неверный email или пароль.')
         } else {
-          setGeneralError(t('auth.error_general'))
+          setGeneralError(err.message)
         }
       } else if (data.user) {
         identifyUser(data.user.id)
