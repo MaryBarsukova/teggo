@@ -58,12 +58,13 @@ export function TaskCard({ task, checkboxColor = 'peach' }: TaskCardProps) {
     <>
       <div
         className="flex items-start gap-3 px-4 py-3.5"
-        style={{ backgroundColor: 'var(--color-surface)' }}
+        style={{ backgroundColor: 'var(--color-surface)', cursor: 'pointer' }}
         onTouchStart={handlePressStart}
         onTouchEnd={handlePressEnd}
         onMouseDown={handlePressStart}
         onMouseUp={handlePressEnd}
         onMouseLeave={handlePressEnd}
+        onClick={() => { if (!didLongPress.current) openAddTask(task) }}
       >
         <div className="mt-0.5 flex-shrink-0">
           <Checkbox checked={task.is_done} onChange={handleToggle} color={checkboxColor} />
@@ -82,7 +83,7 @@ export function TaskCard({ task, checkboxColor = 'peach' }: TaskCardProps) {
           </p>
           {/* Metadata: date indicator + tags */}
           {(task.time || task.date || taskTags.length > 0) && (
-            <div className="flex items-center flex-wrap gap-1.5 mt-1.5">
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
               {task.time && (
                 <span style={{ fontSize: 12, color: dateInfo?.overdue ? 'var(--color-overdue)' : 'var(--color-text-muted)' }}>
                   {task.time}
@@ -93,20 +94,32 @@ export function TaskCard({ task, checkboxColor = 'peach' }: TaskCardProps) {
                   {dateInfo.overdue ? `⚠ ${dateInfo.text}` : dateInfo.text}
                 </span>
               )}
-              {taskTags.map((tag) => (
-                <span
-                  key={tag.id}
-                  className="px-2 py-0.5 rounded-full"
-                  style={{
-                    fontSize: 11,
-                    backgroundColor: `${tag.color}20`,
-                    color: tag.color,
-                    fontWeight: 500,
-                  }}
-                >
-                  {tag.name}
-                </span>
-              ))}
+              {taskTags.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: taskTags.length > 0 && (task.time || task.date) ? 2 : 0 }}>
+                  {taskTags.map((tag) => (
+                    <span
+                      key={tag.id}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        fontSize: 11,
+                        fontWeight: 500,
+                        backgroundColor: `${tag.color}18`,
+                        color: tag.color,
+                        border: 'none',
+                        borderRadius: 6,
+                        paddingLeft: 8,
+                        paddingRight: 8,
+                        paddingTop: 3,
+                        paddingBottom: 3,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {tag.name}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

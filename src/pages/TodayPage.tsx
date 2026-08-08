@@ -15,9 +15,8 @@ import type { Task } from '../types'
 function formatHeaderDate(): string {
   const d = new Date()
   const weekday = d.toLocaleDateString('ru-RU', { weekday: 'long' })
-  const day = d.getDate()
-  const month = d.toLocaleDateString('ru-RU', { month: 'long' })
-  return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)}, ${day} ${month}`
+  const dayMonth = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+  return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)}, ${dayMonth}`
 }
 
 function StreakSquares({ heatmapData }: { heatmapData: Record<string, number> }) {
@@ -98,25 +97,25 @@ export function TodayPage() {
       {/* ── HEADER ── */}
       <div style={{
         backgroundColor: 'var(--color-primary)',
-        paddingTop: 52,
-        paddingBottom: 16,
-        paddingLeft: 16,
-        paddingRight: 16,
+        paddingTop: 48,
+        paddingBottom: 20,
+        paddingLeft: 20,
+        paddingRight: 20,
         overflow: 'hidden',
       }}>
         {/* Date */}
-        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginBottom: 4, letterSpacing: '0.01em' }}>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginBottom: 6, letterSpacing: '0.01em' }}>
           {formatHeaderDate()}
         </p>
 
         {/* Title */}
-        <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 10 }}>
+        <h1 style={{ fontSize: 28, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 12 }}>
           {t('today.title')}
         </h1>
 
         {/* Streak row */}
         {showStreak && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 0 }}>
             <Flame size={13} style={{ color: 'rgba(255,255,255,0.85)', flexShrink: 0 }} />
             <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontWeight: 500, flexShrink: 0 }}>
               {streak?.current_streak ?? 0} {t('today.streak_label')}

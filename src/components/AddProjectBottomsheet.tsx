@@ -10,6 +10,15 @@ const PROJECT_COLORS = [
   '#378ADD', '#E2A030', '#D4537E', '#5DCAA5', '#888780',
 ]
 
+const sectionLabel: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 500,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  padding: '16px 16px 6px',
+}
+
 export function AddProjectBottomsheet() {
   const { t } = useTranslation()
   const { isAddProjectOpen, editingProjectId, closeAddProject } = useUIStore()
@@ -55,68 +64,114 @@ export function AddProjectBottomsheet() {
 
   return (
     <Bottomsheet open={isAddProjectOpen} onClose={closeAddProject}>
-      <div className="px-4 pb-4">
-        <p className="text-[16px] py-2 mb-4" style={{ fontWeight: 500, color: 'var(--color-text)' }}>
-          {editingProject ? t('projects.edit_project') : t('projects.new_project')}
-        </p>
+      <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom)' }}>
 
-        {/* Name with colored dot */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-          <input
-            autoFocus
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={t('projects.name')}
-            maxLength={100}
-            className="flex-1 text-[16px] outline-none bg-transparent py-2"
-            style={{ color: 'var(--color-text)', borderBottom: '0.5px solid var(--color-border)' }}
-          />
+        {/* Title */}
+        <div style={{ padding: '0 16px 16px', borderBottom: '0.5px solid var(--color-border)' }}>
+          <p style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text)', paddingTop: 16 }}>
+            {editingProject ? t('projects.edit_project') : t('projects.new_project')}
+          </p>
         </div>
 
-        {/* Color picker */}
-        <p className="text-[11px] mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('projects.color')}</p>
-        <div className="flex gap-3 mb-4 flex-wrap">
+        {/* Name section */}
+        <p style={sectionLabel}>НАЗВАНИЕ</p>
+        <input
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Название проекта"
+          maxLength={100}
+          style={{
+            fontSize: 16,
+            color: 'var(--color-text)',
+            padding: '12px 16px',
+            outline: 'none',
+            background: 'transparent',
+            borderBottom: '0.5px solid var(--color-border)',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        />
+
+        {/* Description section */}
+        <p style={{ ...sectionLabel, marginTop: 8 }}>ОПИСАНИЕ</p>
+        <input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Необязательно"
+          maxLength={2000}
+          style={{
+            fontSize: 15,
+            color: 'var(--color-text)',
+            padding: '12px 16px',
+            outline: 'none',
+            background: 'transparent',
+            borderBottom: '0.5px solid var(--color-border)',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        />
+
+        {/* Color section */}
+        <p style={{ ...sectionLabel, marginTop: 8, paddingBottom: 12 }}>ЦВЕТ</p>
+        <div style={{ display: 'flex', gap: 10, padding: '0 16px', flexWrap: 'wrap' }}>
           {PROJECT_COLORS.map((c) => (
             <button
               key={c}
               onClick={() => setColor(c)}
-              className="w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: c }}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                backgroundColor: c,
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
             >
               {color === c && <Check size={16} color="white" />}
             </button>
           ))}
         </div>
 
-        {/* Description */}
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={t('projects.add_description')}
-          rows={2}
-          maxLength={2000}
-          className="w-full text-[13px] outline-none bg-transparent resize-none py-2"
+        {/* Save button */}
+        <button
+          onClick={handleSave}
+          disabled={!name.trim()}
           style={{
-            color: 'var(--color-text)',
-            borderBottom: '0.5px solid var(--color-border)',
+            margin: '20px 16px 8px',
+            padding: 14,
+            borderRadius: 14,
+            backgroundColor: '#F0956E',
+            color: 'white',
+            fontSize: 15,
+            fontWeight: 500,
+            border: 'none',
+            cursor: 'pointer',
+            opacity: name.trim() ? 1 : 0.4,
           }}
-        />
+        >
+          {editingProject ? t('common.save') : t('projects.create')}
+        </button>
 
-        {/* Actions */}
-        <div className="flex justify-between items-center mt-6">
-          <button onClick={closeAddProject} className="px-4 py-2 text-[14px]" style={{ color: 'var(--color-text-muted)' }}>
-            {t('common.cancel')}
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={!name.trim()}
-            className="px-6 py-2.5 rounded-full text-[14px] text-white disabled:opacity-40"
-            style={{ backgroundColor: 'var(--color-primary)', fontWeight: 500 }}
-          >
-            {editingProject ? t('common.save') : t('projects.create')}
-          </button>
-        </div>
+        {/* Cancel */}
+        <button
+          onClick={closeAddProject}
+          style={{
+            padding: 8,
+            textAlign: 'center',
+            fontSize: 14,
+            color: '#AAAAAA',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          {t('common.cancel')}
+        </button>
       </div>
     </Bottomsheet>
   )

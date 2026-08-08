@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Search, ListTodo } from 'lucide-react'
 import { TaskCard } from '../components/TaskCard'
@@ -7,8 +7,6 @@ import { EmptyState } from '../components/EmptyState'
 import { useTaskStore } from '../store/taskStore'
 import { useTagStore } from '../store/tagStore'
 import { TagIcon } from '../components/AddTaskBottomsheet'
-import type { Task } from '../types'
-
 function hexToRgba(hex: string, alpha: number): string {
   const r = parseInt(hex.slice(1, 3), 16)
   const g = parseInt(hex.slice(3, 5), 16)
@@ -16,34 +14,10 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`
 }
 
-function groupByDoneAt(tasks: Task[]): { label: string; tasks: Task[] }[] {
-  const today = new Date().toISOString().split('T')[0]
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
-  const groups: Record<string, Task[]> = {}
-  tasks.forEach((task) => {
-    const key = task.done_at?.split('T')[0] ?? 'unknown'
-    if (!groups[key]) groups[key] = []
-    groups[key].push(task)
-  })
-  return Object.entries(groups)
-    .sort(([a], [b]) => b.localeCompare(a))
-    .map(([date, tasks]) => {
-      let label = date
-      if (date === today) label = 'Сегодня'
-      else if (date === yesterday) label = 'Вчера'
-      else {
-        const d = new Date(date)
-        label = d.toLocaleDateString('ru-RU', { month: 'long', day: 'numeric' })
-      }
-      return { label, tasks }
-    })
-}
-
 export function TasksPage() {
   const { t } = useTranslation()
   const { tasks, fetchTasks, searchQuery, setSearchQuery, activeTagId, setActiveTagId } = useTaskStore()
   const { tags, fetchTags } = useTagStore()
-  const [activeTab, setActiveTab] = useState<'progress' | 'done'>('progress')
 
   useEffect(() => {
     fetchTasks()
@@ -68,13 +42,7 @@ export function TasksPage() {
     return b.done_at.localeCompare(a.done_at)
   })
 
-  const doneGroups = groupByDoneAt(done)
-
-  const totalInProgress = tasks.filter((t) => !t.is_done).length
-  const totalDone = tasks.filter((t) => t.is_done).length
-  const headerSubtitle = totalInProgress > 0 || totalDone > 0
-    ? `${totalInProgress} ${t('tasks.in_progress').toLowerCase()} · ${totalDone} ${t('tasks.done').toLowerCase()}`
-    : null
+  const totalCount = tasks.length
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
@@ -85,15 +53,15 @@ export function TasksPage() {
           <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>
             {t('tasks.title')}
           </h1>
-          {headerSubtitle && (
+          {totalCount > 0 && (
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
-              {headerSubtitle}
+              {totalCount} задач
             </p>
           )}
         </div>
       </div>
 
-      {/* ── SEARCH + TAGS + TABS ── */}
+      {/* ── SEARCH + TAGS ── */}
       <div style={{ backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
         {/* Search */}
         <div style={{ padding: '12px 16px' }}>
@@ -130,7 +98,7 @@ export function TasksPage() {
             paddingLeft: 16,
             paddingRight: 16,
             paddingTop: 4,
-            paddingBottom: 8,
+            paddingBottom: 12,
             overflowX: 'auto',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -187,98 +155,68 @@ export function TasksPage() {
             })}
           </div>
         )}
-
-        {/* Tabs — chip style */}
-        <div style={{ display: 'flex', gap: 4, padding: '8px 16px 12px' }}>
-          {(['progress', 'done'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                fontSize: 13,
-                fontWeight: 500,
-                padding: '5px 14px',
-                borderRadius: 8,
-                border: 'none',
-                cursor: 'pointer',
-                backgroundColor: activeTab === tab ? '#E8775A' : '#F0E6DF',
-                color: activeTab === tab ? '#fff' : '#B5897A',
-              }}
-            >
-              {tab === 'progress' ? t('tasks.active_tab') : t('tasks.done_tab')}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* ── TASK LIST ── */}
-      <div style={{ flex: 1, paddingBottom: 96, paddingTop: 16 }}>
-        {activeTab === 'progress' ? (
-          inProgress.length === 0 ? (
-            <EmptyState icon={<ListTodo size={40} color="#E8775A" />} text={t('tasks.empty_progress')} />
-          ) : (
-            <div style={{ backgroundColor: 'var(--color-surface)' }}>
-              {inProgress.map((task, i) => (
-                <React.Fragment key={task.id}>
-                  {i > 0 && <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />}
-                  <TaskCard task={task} />
-                </React.Fragment>
-              ))}
-            </div>
-          )
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: 96, paddingTop: 16 }}>
+        {inProgress.length === 0 && done.length === 0 ? (
+          <EmptyState icon={<ListTodo size={40} color="#E8775A" />} text={t('tasks.empty_progress')} />
         ) : (
-          done.length === 0 ? (
-            <EmptyState icon={<ListTodo size={40} color="#E8775A" />} text={t('tasks.empty_done')} />
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {doneGroups.map(({ label, tasks: groupTasks }) => (
-                <div key={label} style={{ marginBottom: 20 }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    paddingLeft: 16,
-                    paddingRight: 16,
-                    paddingBottom: 8,
+          <>
+            {/* Active tasks */}
+            {inProgress.length > 0 && (
+              <div style={{ backgroundColor: 'var(--color-surface)' }}>
+                {inProgress.map((task, i) => (
+                  <React.Fragment key={task.id}>
+                    {i > 0 && <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />}
+                    <TaskCard task={task} />
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+
+            {/* Completed tasks section */}
+            {done.length > 0 && (
+              <div style={{ marginTop: inProgress.length > 0 ? 24 : 0 }}>
+                {/* Section divider */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 16, paddingRight: 16, paddingBottom: 8 }}>
+                  <p style={{
+                    fontSize: 11,
+                    fontWeight: 500,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: 'var(--color-text-muted)',
                   }}>
-                    <p style={{
-                      fontSize: 11,
-                      fontWeight: 500,
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                      color: '#AAAAAA',
-                    }}>
-                      {label}
-                    </p>
-                    <span style={{
-                      fontSize: 11,
-                      color: 'white',
-                      backgroundColor: 'var(--color-primary)',
-                      borderRadius: 9999,
-                      paddingLeft: 8,
-                      paddingRight: 8,
-                      paddingTop: 2,
-                      paddingBottom: 2,
-                    }}>
-                      {groupTasks.length}
-                    </span>
-                  </div>
-                  <div style={{ backgroundColor: 'var(--color-surface)' }}>
-                    {groupTasks.map((task, i) => (
-                      <React.Fragment key={task.id}>
-                        {i > 0 && <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />}
-                        <TaskCard task={task} />
-                      </React.Fragment>
-                    ))}
-                  </div>
+                    ВЫПОЛНЕНО
+                  </p>
+                  <span style={{
+                    fontSize: 11,
+                    color: 'white',
+                    backgroundColor: 'var(--color-primary)',
+                    borderRadius: 9999,
+                    paddingLeft: 8,
+                    paddingRight: 8,
+                    paddingTop: 2,
+                    paddingBottom: 2,
+                  }}>
+                    {done.length}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )
+                <div style={{ backgroundColor: 'var(--color-surface)' }}>
+                  {done.map((task, i) => (
+                    <React.Fragment key={task.id}>
+                      {i > 0 && <div style={{ height: '0.5px', backgroundColor: 'var(--color-border)', marginLeft: 52 }} />}
+                      <TaskCard task={task} />
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {activeTab === 'progress' && <FAB />}
+      <FAB />
     </div>
   )
 }

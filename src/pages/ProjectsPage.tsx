@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Plus, FolderOpen } from 'lucide-react'
 import { AddProjectBottomsheet } from '../components/AddProjectBottomsheet'
 import { EmptyState } from '../components/EmptyState'
+import { FAB } from '../components/FAB'
 import { useProjectStore } from '../store/projectStore'
 import { useTaskStore } from '../store/taskStore'
 import { useUIStore } from '../store/uiStore'
@@ -67,83 +68,86 @@ export function ProjectsPage() {
       </div>
 
       {/* ── PROJECT LIST ── */}
-      <div style={{ flex: 1, padding: '16px 16px 96px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 16px 96px' }}>
         {projects.length === 0 ? (
           <EmptyState icon={<FolderOpen size={48} color="#E8775A" />} text={t('projects.empty')} />
         ) : (
-          projects.map((project) => {
-            const projectTasks = tasks.filter((t) => t.project_id === project.id)
-            const doneCount = projectTasks.filter((t) => t.is_done).length
-            const totalCount = projectTasks.length
-            const percent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0
+          <>
+            {projects.map((project) => {
+              const projectTasks = tasks.filter((t) => t.project_id === project.id)
+              const doneCount = projectTasks.filter((t) => t.is_done).length
+              const totalCount = projectTasks.length
+              const percent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0
 
-            return (
-              <div
-                key={project.id}
-                onTouchStart={() => handlePressStart(project.id)}
-                onTouchEnd={() => { handlePressEnd(); handleClick(project.id) }}
-                onMouseDown={() => handlePressStart(project.id)}
-                onMouseUp={() => { handlePressEnd(); handleClick(project.id) }}
-                onMouseLeave={handlePressEnd}
-                style={{
-                  backgroundColor: 'var(--color-surface)',
-                  border: '0.5px solid var(--color-border)',
-                  borderRadius: 14,
-                  padding: 14,
-                  marginBottom: 10,
-                  cursor: 'pointer',
-                }}
-              >
-                {/* Project name + task count */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 10, height: 10, borderRadius: 9999, backgroundColor: project.color, flexShrink: 0 }} />
-                    <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-text)' }}>{project.name}</p>
+              return (
+                <div
+                  key={project.id}
+                  onTouchStart={() => handlePressStart(project.id)}
+                  onTouchEnd={() => { handlePressEnd(); handleClick(project.id) }}
+                  onMouseDown={() => handlePressStart(project.id)}
+                  onMouseUp={() => { handlePressEnd(); handleClick(project.id) }}
+                  onMouseLeave={handlePressEnd}
+                  style={{
+                    backgroundColor: 'var(--color-surface)',
+                    border: '0.5px solid var(--color-border)',
+                    borderRadius: 14,
+                    padding: 14,
+                    marginBottom: 10,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {/* Project name + task count */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ width: 10, height: 10, borderRadius: 9999, backgroundColor: project.color, flexShrink: 0 }} />
+                      <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-text)' }}>{project.name}</p>
+                    </div>
+                    <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                      {t('projects.tasks_count', { count: totalCount })}
+                    </p>
                   </div>
-                  <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                    {t('projects.tasks_count', { count: totalCount })}
-                  </p>
-                </div>
 
-                {/* Progress bar */}
-                <div style={{ height: 4, borderRadius: 9999, backgroundColor: 'var(--color-bg)', overflow: 'hidden', marginBottom: 6 }}>
-                  <div style={{ height: '100%', borderRadius: 9999, width: `${percent}%`, backgroundColor: project.color, transition: 'width 0.3s ease' }} />
-                </div>
+                  {/* Progress bar */}
+                  <div style={{ height: 4, borderRadius: 9999, backgroundColor: 'var(--color-bg)', overflow: 'hidden', marginBottom: 6 }}>
+                    <div style={{ height: '100%', borderRadius: 9999, width: `${percent}%`, backgroundColor: project.color, transition: 'width 0.3s ease' }} />
+                  </div>
 
-                {/* Progress labels */}
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
-                    {t('projects.done_of', { done: doneCount, total: totalCount })}
-                  </p>
-                  <p style={{ fontSize: 11, color: project.color, fontWeight: 500 }}>{percent}%</p>
+                  {/* Progress labels */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
+                      {t('projects.done_of', { done: doneCount, total: totalCount })}
+                    </p>
+                    <p style={{ fontSize: 11, color: project.color, fontWeight: 500 }}>{percent}%</p>
+                  </div>
                 </div>
-              </div>
-            )
-          })
+              )
+            })}
+
+            {/* Add project dashed button */}
+            <button
+              onClick={() => openAddProject()}
+              style={{
+                width: '100%',
+                padding: '14px 24px',
+                borderRadius: 14,
+                border: '1.5px dashed var(--color-border-strong)',
+                backgroundColor: 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                fontSize: 15,
+                fontWeight: 500,
+                color: 'var(--color-text-muted)',
+                cursor: 'pointer',
+                marginTop: 4,
+              }}
+            >
+              <Plus size={16} />
+              {t('projects.new_project')}
+            </button>
+          </>
         )}
-
-        {/* Add project button */}
-        <button
-          onClick={() => openAddProject()}
-          style={{
-            width: '100%',
-            padding: '14px 24px',
-            borderRadius: 14,
-            border: 'none',
-            backgroundColor: '#FEF0EB',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            fontSize: 15,
-            fontWeight: 500,
-            color: '#E8775A',
-            cursor: 'pointer',
-          }}
-        >
-          <Plus size={16} />
-          {t('projects.new_project')}
-        </button>
       </div>
 
       {/* Context menu */}
@@ -206,6 +210,7 @@ export function ProjectsPage() {
       )}
 
       <AddProjectBottomsheet />
+      <FAB onPress={() => openAddProject()} />
     </div>
   )
 }

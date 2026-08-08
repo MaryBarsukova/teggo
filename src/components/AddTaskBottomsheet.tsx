@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CalendarDays, Clock, Repeat2, ChevronRight, X, Check, Tag, Briefcase, Heart, GraduationCap, Code2, Home, Scissors, Dumbbell } from 'lucide-react'
 import { Bottomsheet } from './Bottomsheet'
@@ -54,6 +54,7 @@ export function AddTaskBottomsheet() {
   const [newTagIcon, setNewTagIcon] = useState(TAG_ICONS[0])
 
   const isEditing = !!(editingTask?.id)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!isAddTaskOpen) return
@@ -81,6 +82,11 @@ export function AddTaskBottomsheet() {
     setNewTagName('')
     setNewTagColor(TAG_COLORS[0])
     setNewTagIcon(TAG_ICONS[0])
+    if (isAddTaskOpen) {
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({ top: 0 })
+      }, 50)
+    }
   }, [editingTask, isAddTaskOpen])
 
   const handleSave = async () => {
@@ -150,7 +156,7 @@ export function AddTaskBottomsheet() {
   return (
     <>
       <Bottomsheet open={isAddTaskOpen} onClose={closeAddTask} fullHeight>
-        <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div ref={scrollRef} style={{ display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom)', overflowY: 'auto' }}>
 
           {/* Title input */}
           <div style={{ padding: '16px 20px 12px', borderBottom: '0.5px solid var(--color-border)' }}>
