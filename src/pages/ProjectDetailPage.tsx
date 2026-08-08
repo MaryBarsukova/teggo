@@ -47,7 +47,7 @@ export function ProjectDetailPage() {
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
-      <div className="px-4 pt-12 pb-4" style={{ backgroundColor: project.color }}>
+      <div className="px-4 pb-4" style={{ backgroundColor: project.color, paddingTop: 44 }}>
         <div className="flex items-center justify-between mb-3">
           <button
             onClick={() => navigate('/projects')}
@@ -85,7 +85,11 @@ export function ProjectDetailPage() {
       {/* Task sections */}
       <div className="flex-1 pb-24 pt-4">
         {projectTasks.length === 0 ? (
-          <EmptyState icon={<ListTodo size={40} />} text={t('tasks.empty_progress')} />
+          <EmptyState
+            icon={<ListTodo size={40} />}
+            text="В проекте нет задач"
+            description="Добавь первую задачу в этот проект"
+          />
         ) : (
           <>
             {/* In progress */}

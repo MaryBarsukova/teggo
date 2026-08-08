@@ -52,8 +52,8 @@ export function ProjectsPage() {
       {/* ── HEADER ── */}
       <div style={{
         backgroundColor: 'var(--color-primary)',
-        paddingTop: 52,
-        paddingBottom: 16,
+        paddingTop: 44,
+        paddingBottom: 12,
         paddingLeft: 16,
         paddingRight: 16,
       }}>
@@ -70,7 +70,13 @@ export function ProjectsPage() {
       {/* ── PROJECT LIST ── */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 16px 96px' }}>
         {projects.length === 0 ? (
-          <EmptyState icon={<FolderOpen size={48} color="#E8775A" />} text={t('projects.empty')} />
+          <EmptyState
+            icon={<FolderOpen size={44} />}
+            text="Проектов пока нет"
+            description="Создай проект, чтобы объединить связанные задачи и отслеживать прогресс"
+            actionLabel="+ Новый проект"
+            onAction={() => openAddProject()}
+          />
         ) : (
           <>
             {projects.map((project) => {

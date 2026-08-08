@@ -84,8 +84,7 @@ export function SettingsPage() {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingBottom: 96, backgroundColor: 'var(--color-bg)' }}>
 
       {/* HEADER */}
-      <div style={{ backgroundColor: 'var(--color-primary)', paddingTop: 52, paddingBottom: 16, paddingLeft: 16, paddingRight: 16 }}>
-        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 2 }}>{t('settings.personalization')}</p>
+      <div style={{ backgroundColor: 'var(--color-primary)', paddingTop: 44, paddingBottom: 12, paddingLeft: 16, paddingRight: 16 }}>
         <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500 }}>{t('settings.title')}</h1>
       </div>
 

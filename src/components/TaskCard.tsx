@@ -57,8 +57,14 @@ export function TaskCard({ task, checkboxColor = 'peach' }: TaskCardProps) {
   return (
     <>
       <div
-        className="flex items-start gap-3 px-4 py-3.5"
-        style={{ backgroundColor: 'var(--color-surface)', cursor: 'pointer' }}
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 12,
+          padding: '10px 16px',
+          backgroundColor: 'var(--color-surface)',
+          cursor: 'pointer',
+        }}
         onTouchStart={handlePressStart}
         onTouchEnd={handlePressEnd}
         onMouseDown={handlePressStart}
@@ -66,17 +72,18 @@ export function TaskCard({ task, checkboxColor = 'peach' }: TaskCardProps) {
         onMouseLeave={handlePressEnd}
         onClick={() => { if (!didLongPress.current) openAddTask(task) }}
       >
-        <div className="mt-0.5 flex-shrink-0">
+        <div style={{ marginTop: 2, flexShrink: 0 }}>
           <Checkbox checked={task.is_done} onChange={handleToggle} color={checkboxColor} />
         </div>
-        <div className="flex-1 min-w-0">
+        <div style={{ flex: 1, minWidth: 0 }}>
           <p
             style={{
               fontSize: 15,
               color: 'var(--color-text)',
               textDecoration: task.is_done ? 'line-through' : 'none',
-              opacity: task.is_done ? 0.45 : 1,
-              lineHeight: 1.4,
+              opacity: task.is_done ? 0.4 : 1,
+              lineHeight: 1.35,
+              transition: 'opacity 200ms ease, text-decoration 200ms ease',
             }}
           >
             {task.title}

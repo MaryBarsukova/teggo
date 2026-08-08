@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate, NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Home, ListTodo, FolderOpen, Calendar, Settings, Plus } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { TabBar } from './components/TabBar'
 import { AddTaskBottomsheet } from './components/AddTaskBottomsheet'
@@ -17,22 +19,101 @@ import { ProjectDetailPage } from './pages/ProjectDetailPage'
 import { useSettingsStore } from './store/settingsStore'
 import { useProjectStore } from './store/projectStore'
 import { useTagStore } from './store/tagStore'
+import { useUIStore } from './store/uiStore'
+
+const NAV_ITEMS = [
+  { to: '/', icon: Home, key: 'nav.today', exact: true },
+  { to: '/tasks', icon: ListTodo, key: 'nav.tasks', exact: false },
+  { to: '/projects', icon: FolderOpen, key: 'nav.projects', exact: false },
+  { to: '/calendar', icon: Calendar, key: 'nav.calendar', exact: false },
+  { to: '/settings', icon: Settings, key: 'nav.settings', exact: false },
+]
+
+function DesktopSidebar() {
+  const { t } = useTranslation()
+  const { openAddTask } = useUIStore()
+
+  return (
+    <nav className="app-sidebar">
+      {/* Brand */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px 20px', borderBottom: '0.5px solid var(--color-border)', marginBottom: 8 }}>
+        <div style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>T</span>
+        </div>
+        <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text)' }}>Teggo</span>
+      </div>
+
+      {/* New Task button */}
+      <button
+        onClick={() => openAddTask()}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          width: '100%',
+          padding: '10px 14px',
+          borderRadius: 10,
+          backgroundColor: 'var(--color-primary)',
+          color: 'white',
+          fontSize: 14,
+          fontWeight: 500,
+          border: 'none',
+          cursor: 'pointer',
+          marginTop: 12,
+          marginBottom: 16,
+        }}
+      >
+        <Plus size={16} />
+        Новая задача
+      </button>
+
+      {/* Nav links */}
+      {NAV_ITEMS.map(({ to, icon: Icon, key, exact }) => (
+        <NavLink
+          key={to}
+          to={to}
+          end={exact}
+          className="transition-colors-fast"
+          style={({ isActive }) => ({
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '9px 12px',
+            borderRadius: 9,
+            marginBottom: 2,
+            textDecoration: 'none',
+            backgroundColor: isActive ? 'var(--color-primary-light)' : 'transparent',
+            color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+            fontWeight: isActive ? 500 : 400,
+            fontSize: 14,
+          })}
+        >
+          <Icon size={17} />
+          <span>{t(key)}</span>
+        </NavLink>
+      ))}
+    </nav>
+  )
+}
 
 function AppLayout() {
   return (
-    <div>
-      <Routes>
-        <Route path="/" element={<TodayPage />} />
-        <Route path="/tasks" element={<TasksPage />} />
-        <Route path="/projects" element={<ProjectsPage />} />
-        <Route path="/projects/:id" element={<ProjectDetailPage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+    <>
+      <DesktopSidebar />
+      <div className="app-content">
+        <Routes>
+          <Route path="/" element={<TodayPage />} />
+          <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
       <TabBar />
       <AddTaskBottomsheet />
-    </div>
+    </>
   )
 }
 

@@ -97,19 +97,19 @@ export function TodayPage() {
       {/* ── HEADER ── */}
       <div style={{
         backgroundColor: 'var(--color-primary)',
-        paddingTop: 48,
-        paddingBottom: 20,
+        paddingTop: 44,
+        paddingBottom: 14,
         paddingLeft: 20,
         paddingRight: 20,
         overflow: 'hidden',
       }}>
         {/* Date */}
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginBottom: 6, letterSpacing: '0.01em' }}>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.72)', marginBottom: 4, letterSpacing: '0.01em' }}>
           {formatHeaderDate()}
         </p>
 
         {/* Title */}
-        <h1 style={{ fontSize: 28, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 12 }}>
+        <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 10 }}>
           {t('today.title')}
         </h1>
 
@@ -217,7 +217,11 @@ export function TodayPage() {
 
         {/* Empty state */}
         {todayTasks.length === 0 && (
-          <EmptyState icon={<CheckSquare size={40} color="#E8775A" />} text={t('tasks.empty_progress')} />
+          <EmptyState
+            icon={<CheckSquare size={40} />}
+            text="На сегодня задач нет"
+            description="Добавь первую задачу, чтобы начать день продуктивно"
+          />
         )}
       </div>
 

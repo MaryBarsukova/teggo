@@ -49,7 +49,7 @@ export function TasksPage() {
 
       {/* ── HEADER ── */}
       <div style={{ backgroundColor: 'var(--color-primary)' }}>
-        <div style={{ paddingTop: 52, paddingLeft: 16, paddingRight: 16, paddingBottom: 16 }}>
+        <div style={{ paddingTop: 44, paddingLeft: 16, paddingRight: 16, paddingBottom: 12 }}>
           <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1, marginBottom: 2 }}>
             {t('tasks.title')}
           </h1>
@@ -160,7 +160,11 @@ export function TasksPage() {
       {/* ── TASK LIST ── */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: 96, paddingTop: 16 }}>
         {inProgress.length === 0 && done.length === 0 ? (
-          <EmptyState icon={<ListTodo size={40} color="#E8775A" />} text={t('tasks.empty_progress')} />
+          <EmptyState
+            icon={<ListTodo size={40} />}
+            text="Задач пока нет"
+            description="Создай первую задачу, нажав на кнопку +"
+          />
         ) : (
           <>
             {/* Active tasks */}

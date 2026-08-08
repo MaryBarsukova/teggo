@@ -15,7 +15,7 @@ export function TabBar() {
 
   return (
     <nav
-      className="fixed bottom-0 z-40 flex"
+      className="tab-bar-mobile fixed bottom-0 z-40 flex"
       style={{
         backgroundColor: 'var(--color-surface)',
         borderTop: '0.5px solid var(--color-border)',

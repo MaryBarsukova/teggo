@@ -39,6 +39,7 @@ export function CalendarPage() {
 
   const prevMonth = () => setViewDate(new Date(year, month - 1, 1))
   const nextMonth = () => setViewDate(new Date(year, month + 1, 1))
+  const goToToday = () => { setViewDate(new Date()); setSelectedCalendarDate(today) }
 
   const tasksByDate = tasks.reduce<Record<string, { color: string }[]>>((acc, task) => {
     if (task.date) {
@@ -65,16 +66,23 @@ export function CalendarPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
-      <div style={{ backgroundColor: 'var(--color-primary)', paddingTop: 52, paddingBottom: 16, paddingLeft: 16, paddingRight: 16 }}>
-        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 4 }}>{monthName}</p>
+      <div style={{ backgroundColor: 'var(--color-primary)', paddingTop: 44, paddingBottom: 12, paddingLeft: 16, paddingRight: 16 }}>
         <h1 style={{ fontSize: 26, color: 'white', fontWeight: 500, lineHeight: 1.1 }}>{t('calendar.title')}</h1>
       </div>
 
       {/* Calendar grid */}
       <div style={{ padding: '16px', backgroundColor: 'var(--color-surface)', borderBottom: '0.5px solid var(--color-border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text)', textTransform: 'capitalize' }}>{monthName}</p>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            {selectedCalendarDate !== today && (
+              <button
+                onClick={goToToday}
+                style={{ fontSize: 12, color: 'var(--color-primary)', fontWeight: 500, background: 'none', border: '1px solid var(--color-primary)', borderRadius: 6, cursor: 'pointer', padding: '3px 8px', marginRight: 4 }}
+              >
+                Сегодня
+              </button>
+            )}
             <button onClick={prevMonth} style={{ padding: 4, borderRadius: 9999, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ChevronLeft size={18} style={{ color: 'var(--color-text-muted)' }} />
             </button>
@@ -146,9 +154,9 @@ export function CalendarPage() {
       </div>
 
       {/* Selected day tasks */}
-      <div style={{ flex: 1, paddingBottom: 96, paddingTop: 16 }}>
+      <div style={{ flex: 1, paddingBottom: 96, paddingTop: 12 }}>
         {selectedTasks.length === 0 ? (
-          <p style={{ fontSize: 14, color: '#AAAAAA', textAlign: 'center', padding: '24px 16px' }}>
+          <p style={{ fontSize: 14, color: 'var(--color-text-muted)', textAlign: 'center', padding: '20px 16px' }}>
             {t('calendar.empty_day', { date: selectedDateLabel })}
           </p>
         ) : (
