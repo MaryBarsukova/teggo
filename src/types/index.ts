@@ -13,6 +13,8 @@ export interface Task {
   tag_ids: string[]      // derived from task_tags join
   repeat_type: 'none' | 'daily' | 'weekly' | 'monthly' | 'custom'
   repeat_days: number[] | null
+  repeat_interval: number | null
+  repeat_unit: 'days' | 'weeks' | 'months' | null
   created_at: string
 }
 

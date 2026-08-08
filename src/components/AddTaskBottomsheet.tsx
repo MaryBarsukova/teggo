@@ -44,6 +44,8 @@ export function AddTaskBottomsheet() {
   const [time, setTime] = useState('')
   const [repeatType, setRepeatType] = useState<Task['repeat_type']>('none')
   const [repeatDays, setRepeatDays] = useState<number[]>([])
+  const [customRepeatInterval, setCustomRepeatInterval] = useState(1)
+  const [customRepeatUnit, setCustomRepeatUnit] = useState<'days' | 'weeks' | 'months'>('days')
   const [tagIds, setTagIds] = useState<string[]>([])
   const [projectId, setProjectId] = useState<string | null>(null)
   const [showRepeat, setShowRepeat] = useState(false)
@@ -55,6 +57,8 @@ export function AddTaskBottomsheet() {
 
   const isEditing = !!(editingTask?.id)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const dateInputRef = useRef<HTMLInputElement>(null)
+  const timeInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!isAddTaskOpen) return
@@ -65,6 +69,8 @@ export function AddTaskBottomsheet() {
       setTime(editingTask.time ?? '')
       setRepeatType(editingTask.repeat_type)
       setRepeatDays(editingTask.repeat_days ?? [])
+      setCustomRepeatInterval(editingTask.repeat_interval ?? 1)
+      setCustomRepeatUnit(editingTask.repeat_unit ?? 'days')
       setTagIds(editingTask.tag_ids ?? [])
       setProjectId(editingTask.project_id)
     } else {
@@ -74,6 +80,8 @@ export function AddTaskBottomsheet() {
       setTime(newTaskDefaults?.time ?? '')
       setRepeatType('none')
       setRepeatDays([])
+      setCustomRepeatInterval(1)
+      setCustomRepeatUnit('days')
       setTagIds(newTaskDefaults?.tag_ids ?? [])
       setProjectId(newTaskDefaults?.project_id ?? null)
     }
@@ -102,7 +110,9 @@ export function AddTaskBottomsheet() {
       project_id: projectId,
       tag_ids: tagIds,
       repeat_type: repeatType,
-      repeat_days: repeatDays.length > 0 ? repeatDays : null,
+      repeat_days: repeatType === 'weekly' ? (repeatDays.length > 0 ? repeatDays : null) : null,
+      repeat_interval: repeatType === 'custom' ? customRepeatInterval : null,
+      repeat_unit: repeatType === 'custom' ? customRepeatUnit : null,
     }
     if (isEditing) await updateTask(editingTask!.id, payload)
     else await addTask(payload)
@@ -135,7 +145,10 @@ export function AddTaskBottomsheet() {
       case 'daily': return t('tasks.repeat_daily')
       case 'weekly': return t('tasks.repeat_weekly')
       case 'monthly': return t('tasks.repeat_monthly')
-      case 'custom': return t('tasks.repeat_custom')
+      case 'custom': {
+        const units = { days: 'дн', weeks: 'нед', months: 'мес' }
+        return `Каждые ${customRepeatInterval} ${units[customRepeatUnit]}`
+      }
       default: return null
     }
   }
@@ -174,19 +187,19 @@ export function AddTaskBottomsheet() {
           <div style={{ borderBottom: '0.5px solid var(--color-border)' }}>
             {/* Date */}
             <div style={{ position: 'relative', borderBottom: '0.5px solid var(--color-border)' }}>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 1 }}
-              />
-              <div style={rowStyle}>
-                <CalendarDays size={16} style={{ color: date ? 'var(--color-primary)' : '#AAAAAA', flexShrink: 0 }} />
-                <span style={{ flex: 1, fontSize: 14, color: 'var(--color-text)' }}>{t('tasks.date_label')}</span>
+              <div
+                onClick={() => dateInputRef.current?.showPicker()}
+                style={{ display: 'flex', alignItems: 'center', padding: '14px 16px', cursor: 'pointer' }}
+              >
+                <CalendarDays size={16} style={{ color: date ? 'var(--color-primary)' : '#AAAAAA', marginRight: 12, flexShrink: 0 }} />
+                <span style={{ fontSize: 15, color: 'var(--color-text)', flex: 1 }}>{t('tasks.date_label')}</span>
                 {date ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative', zIndex: 2 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 14, color: 'var(--color-primary)', fontWeight: 500 }}>{dateLabel()}</span>
-                    <button onClick={(e) => { e.stopPropagation(); setDate('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setDate('') }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    >
                       <X size={14} style={{ color: 'var(--color-text-muted)' }} />
                     </button>
                   </div>
@@ -194,23 +207,30 @@ export function AddTaskBottomsheet() {
                   <span style={{ fontSize: 14, color: '#AAAAAA' }}>—</span>
                 )}
               </div>
+              <input
+                ref={dateInputRef}
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', top: 0, left: 0, width: '100%', height: '100%' }}
+              />
             </div>
 
             {/* Time */}
             <div style={{ position: 'relative', borderBottom: '0.5px solid var(--color-border)' }}>
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 1 }}
-              />
-              <div style={rowStyle}>
-                <Clock size={16} style={{ color: time ? 'var(--color-primary)' : '#AAAAAA', flexShrink: 0 }} />
-                <span style={{ flex: 1, fontSize: 14, color: 'var(--color-text)' }}>{t('tasks.time_label')}</span>
+              <div
+                onClick={() => timeInputRef.current?.showPicker()}
+                style={{ display: 'flex', alignItems: 'center', padding: '14px 16px', cursor: 'pointer' }}
+              >
+                <Clock size={16} style={{ color: time ? 'var(--color-primary)' : '#AAAAAA', marginRight: 12, flexShrink: 0 }} />
+                <span style={{ fontSize: 15, color: 'var(--color-text)', flex: 1 }}>{t('tasks.time_label')}</span>
                 {time ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative', zIndex: 2 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 14, color: 'var(--color-primary)', fontWeight: 500 }}>{time}</span>
-                    <button onClick={(e) => { e.stopPropagation(); setTime('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setTime('') }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    >
                       <X size={14} style={{ color: 'var(--color-text-muted)' }} />
                     </button>
                   </div>
@@ -218,6 +238,13 @@ export function AddTaskBottomsheet() {
                   <span style={{ fontSize: 14, color: '#AAAAAA' }}>—</span>
                 )}
               </div>
+              <input
+                ref={timeInputRef}
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', top: 0, left: 0, width: '100%', height: '100%' }}
+              />
             </div>
 
             {/* Repeat */}
@@ -398,24 +425,33 @@ export function AddTaskBottomsheet() {
 
       {/* Repeat picker */}
       <Bottomsheet open={showRepeat} onClose={() => setShowRepeat(false)}>
-        <div style={{ padding: '0 20px 32px' }}>
-          <p style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text)', padding: '12px 0 16px' }}>
+        <div style={{ paddingBottom: 32 }}>
+          <p style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text)', padding: '12px 20px 16px' }}>
             {t('tasks.repeat')}
           </p>
-          {(['none', 'daily', 'weekly', 'monthly'] as const).map((type) => (
-            <button
-              key={type}
-              onClick={() => { setRepeatType(type); if (type !== 'weekly') setShowRepeat(false) }}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', background: 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderBottom: '0.5px solid var(--color-border)', cursor: 'pointer' }}
-            >
-              <span style={{ fontSize: 15, color: 'var(--color-text)' }}>
-                {type === 'none' ? t('tasks.repeat_never') : type === 'daily' ? t('tasks.repeat_daily') : type === 'weekly' ? t('tasks.repeat_weekly') : t('tasks.repeat_monthly')}
-              </span>
-              {repeatType === type && <Check size={17} style={{ color: 'var(--color-primary)' }} />}
-            </button>
-          ))}
+          {(['none', 'daily', 'weekly', 'monthly', 'custom'] as const).map((type) => {
+            const labels: Record<string, string> = {
+              none: t('tasks.repeat_never'),
+              daily: t('tasks.repeat_daily'),
+              weekly: t('tasks.repeat_weekly'),
+              monthly: t('tasks.repeat_monthly'),
+              custom: 'Своя периодичность',
+            }
+            return (
+              <button
+                key={type}
+                onClick={() => { setRepeatType(type); if (type !== 'weekly' && type !== 'custom') setShowRepeat(false) }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderBottom: '0.5px solid var(--color-border)', cursor: 'pointer' }}
+              >
+                <span style={{ fontSize: 15, color: 'var(--color-text)' }}>{labels[type]}</span>
+                {repeatType === type && <Check size={17} style={{ color: 'var(--color-primary)' }} />}
+              </button>
+            )
+          })}
+
+          {/* Weekly day selector */}
           {repeatType === 'weekly' && (
-            <div style={{ marginTop: 20 }}>
+            <div style={{ padding: '16px 20px 0' }}>
               <p style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#AAAAAA', marginBottom: 12 }}>Дни недели</p>
               <div style={{ display: 'flex', gap: 8 }}>
                 {WEEKDAYS.map((day, idx) => (
@@ -437,6 +473,61 @@ export function AddTaskBottomsheet() {
                     {day}
                   </button>
                 ))}
+              </div>
+              <button
+                onClick={() => setShowRepeat(false)}
+                style={{ width: '100%', padding: '14px 0', borderRadius: 9999, marginTop: 20, backgroundColor: 'var(--color-primary)', color: 'white', fontSize: 15, fontWeight: 500, border: 'none', cursor: 'pointer' }}
+              >
+                {t('common.done')}
+              </button>
+            </div>
+          )}
+
+          {/* Custom interval */}
+          {repeatType === 'custom' && (
+            <div style={{ padding: '12px 16px 0', borderTop: '0.5px solid var(--color-border)' }}>
+              <p style={{ fontSize: 12, color: '#AAAAAA', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500 }}>
+                ИНТЕРВАЛ
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                {/* Number stepper */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--color-bg)', borderRadius: 10, padding: '8px 12px' }}>
+                  <button
+                    onClick={() => setCustomRepeatInterval(Math.max(1, customRepeatInterval - 1))}
+                    style={{ fontSize: 18, color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 4px' }}
+                  >−</button>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--color-text)', minWidth: 24, textAlign: 'center' }}>
+                    {customRepeatInterval}
+                  </span>
+                  <button
+                    onClick={() => setCustomRepeatInterval(customRepeatInterval + 1)}
+                    style={{ fontSize: 18, color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 4px' }}
+                  >+</button>
+                </div>
+                {/* Unit selector */}
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {(['days', 'weeks', 'months'] as const).map((unit) => {
+                    const labels = { days: 'дней', weeks: 'недель', months: 'месяцев' }
+                    return (
+                      <button
+                        key={unit}
+                        onClick={() => setCustomRepeatUnit(unit)}
+                        style={{
+                          fontSize: 13,
+                          padding: '6px 12px',
+                          borderRadius: 20,
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: customRepeatUnit === unit ? 'var(--color-primary)' : 'var(--color-bg)',
+                          color: customRepeatUnit === unit ? 'white' : '#AAAAAA',
+                          fontWeight: customRepeatUnit === unit ? 500 : 400,
+                        }}
+                      >
+                        {labels[unit]}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
               <button
                 onClick={() => setShowRepeat(false)}
